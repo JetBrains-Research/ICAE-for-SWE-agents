@@ -1,0 +1,73 @@
+{
+    "task": "lm",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "",
+    "mean_em": 0.0,
+    "mean_f1": 0.016091702351833666,
+    "num_samples": 500
+}{
+    "task": "lm",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "icae/data/checkpoints/qwen_finetune_1207-2/checkpoint-15000/model.safetensors",
+    "mean_em": 0.584,
+    "mean_f1": 0.7719616690782932,
+    "num_samples": 500
+}{
+    "task": "lm",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "icae/data/checkpoints/qwen_finetune_1207-2/checkpoint-15000/model.safetensors",
+    "mean_em": 0.584,
+    "mean_f1": 0.7719616690782932,
+    "num_samples": 500
+}{
+    "task": "lm",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "icae/data/checkpoints/qwen_finetune_1207-icae-last/checkpoint-5000/model.safetensors",
+    "mean_em": 0.646,
+    "mean_f1": 0.8028620509386621,
+    "num_samples": 500
+}{
+    "task": "lm",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "icae/data/checkpoints/qwen_finetune_1207-icae-last/checkpoint-10000/model.safetensors",
+    "mean_em": 0.654,
+    "mean_f1": 0.8137767973034086,
+    "num_samples": 500
+}{
+    "task": "lm",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "icae/data/checkpoints/qwen_finetune_1207-icae-last/checkpoint-15000/model.safetensors",
+    "mean_em": 0.664,
+    "mean_f1": 0.8230916232184834,
+    "num_samples": 500
+}{
+    "task": "lm",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "icae/data/checkpoints/qwen_finetune_1207-icae-75k/checkpoint-30000/model.safetensors",
+    "mean_em": 0.666,
+    "mean_f1": 0.820096241876972,
+    "num_samples": 500
+}{
+    "task": "lm",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "icae/data/checkpoints/qwen_finetune_1207-icae-75k/checkpoint-15000/model.safetensors",
+    "mean_em": 0.668,
+    "mean_f1": 0.8230829607136909,
+    "num_samples": 500
+}{
+    "task": "lm",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "icae/data/checkpoints/qwen_finetune_1207-icae-75k/checkpoint-75000/model.safetensors",
+    "mean_em": 0.662,
+    "mean_f1": 0.8188062862185953,
+    "num_samples": 500
+}

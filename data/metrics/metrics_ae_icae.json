@@ -1,0 +1,8 @@
+{
+    "task": "ae",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "icae/data/checkpoints/pretrain_1207/checkpoint-9000/model.safetensors",
+    "mean_bleu": 0.9415694435323835,
+    "num_samples": 100
+}

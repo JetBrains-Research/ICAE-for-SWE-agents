@@ -1,0 +1,15 @@
+.idea/*
+.vscode/*
+data_samples/*
+first_one*
+squad_prototype*
+*wandb*
+prototype-initial.code-workspace
+*/__pycache__/*
+__pycache__/*
+*.safetensors
+*.pt
+*.log
+data/checkpoints/*
+data/datasets/*
+*/predictions/*

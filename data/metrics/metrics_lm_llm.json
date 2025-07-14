@@ -1,0 +1,33 @@
+{
+    "task": "lm",
+    "model_type": "llm",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "",
+    "mean_em": 0.54,
+    "mean_f1": 0.7539254939966381,
+    "num_samples": 500
+}{
+    "task": "lm",
+    "model_type": "llm",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "",
+    "mean_em": 0.54,
+    "mean_f1": 0.7558533669949001,
+    "num_samples": 500
+}{
+    "task": "lm",
+    "model_type": "llm",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "icae/data/checkpoints/qwen_finetune_1207-llm-shuffled/checkpoint-5000/model.safetensors",
+    "mean_em": 0.7,
+    "mean_f1": 0.8500150518849975,
+    "num_samples": 500
+}{
+    "task": "lm",
+    "model_type": "llm",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "icae/data/checkpoints/qwen_finetune_1207-llm-shuffled/checkpoint-10000/model.safetensors",
+    "mean_em": 0.704,
+    "mean_f1": 0.855230246760977,
+    "num_samples": 500
+}
