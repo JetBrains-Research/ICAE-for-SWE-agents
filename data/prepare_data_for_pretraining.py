@@ -39,23 +39,23 @@ def get_long_text_list(dataset_repo, long_text_cache):
     return long_text_list
 
 
-def prepare_and_save_data(model_args, training_args, pretr_args):
-    if os.path.exists(pretr_args.train_output_file) and os.path.exists(pretr_args.eval_output_file):
+def prepare_and_save_data(model_args, data_args, training_args):
+    if os.path.exists(data_args.train_output_file) and os.path.exists(data_args.eval_output_file):
         print("Prepared data files already exist. Skipping preparation.")
         return
 
-    os.makedirs(os.path.dirname(pretr_args.train_output_file), exist_ok=True)
+    os.makedirs(os.path.dirname(data_args.train_output_file), exist_ok=True)
 
     # --- Use loaded arguments for ICAE model instantiation ---
     model_args.train = False
     # The model's max length should be adjusted for the pre-training task
-    training_args.model_max_length = pretr_args.min_len * 2
+    training_args.model_max_length = data_args.min_len * 2
 
 
     print("Loading model for tokenization...")
     model = ICAE(model_args, training_args)
     
-    long_text_list = get_long_text_list(pretr_args.dataset_repo, pretr_args.long_text_cache)
+    long_text_list = get_long_text_list(data_args.dataset_repo, data_args.long_text_cache)
 
     print("Processing long texts to create examples...")
     examples = []
@@ -64,15 +64,18 @@ def prepare_and_save_data(model_args, training_args, pretr_args):
     for text in tqdm(long_text_list, "Processing long texts"):
         ids = model.tokenizer(text, truncation=False, padding=False)["input_ids"]
 
-        if len(ids) < pretr_args.min_len * 2:
+        # Add random variation to sequence length
+        length_variation = random.randint(-data_args.min_len//10, data_args.min_len//10)
+        seq_len = data_args.min_len + length_variation
+        
+        if len(ids) < seq_len * 2:
             continue
         
-        # Extract one sample per long text, as in the reference code.
-        last_start = len(ids) - pretr_args.min_len * 2
+        last_start = len(ids) - seq_len * 2
         random_start = random.randint(0, last_start)
         
-        input_tokens = ids[random_start : random_start + pretr_args.min_len]
-        lm_target_tokens = ids[random_start + pretr_args.min_len : random_start + 2 * pretr_args.min_len]
+        input_tokens = ids[random_start : random_start + seq_len]
+        lm_target_tokens = ids[random_start + seq_len : random_start + 2 * seq_len]
 
         # Decide whether this sample is for AE or LM based on lm_ratio
         is_ae = random.random() >= training_args.lm_ratio
@@ -86,23 +89,23 @@ def prepare_and_save_data(model_args, training_args, pretr_args):
         if lm_target_tokens:
             total_tokens_processed += len(lm_target_tokens)
         
-        if total_tokens_processed >= pretr_args.token_num:
-            print(f"Reached target token count of {pretr_args.token_num}.")
+        if total_tokens_processed >= data_args.token_num:
+            print(f"Reached target token count of {data_args.token_num}.")
             break
 
-    if len(examples) <= pretr_args.eval_size:
+    if len(examples) <= data_args.eval_size:
         raise ValueError("Not enough examples generated for train/eval split.")
 
-    train_data = examples[pretr_args.eval_size:]
-    eval_data = examples[:pretr_args.eval_size]
+    train_data = examples[data_args.eval_size:]
+    eval_data = examples[:data_args.eval_size]
 
-    print(f"Saving {len(train_data)} training examples to {pretr_args.train_output_file}")
-    torch.save(train_data, pretr_args.train_output_file)
-    print(f"Saving {len(eval_data)} evaluation examples to {pretr_args.eval_output_file}")
-    torch.save(eval_data, pretr_args.eval_output_file)
+    print(f"Saving {len(train_data)} training examples to {data_args.train_output_file}")
+    torch.save(train_data, data_args.train_output_file)
+    print(f"Saving {len(eval_data)} evaluation examples to {data_args.eval_output_file}")
+    torch.save(eval_data, data_args.eval_output_file)
 
     print("Data preparation finished.")
 
 if __name__ == "__main__":
-    model_args, _, training_args, _ = get_config()
-    prepare_and_save_data(model_args, training_args, training_args)
+    model_args, data_args, training_args, _ = get_config()
+    prepare_and_save_data(model_args, data_args, training_args)

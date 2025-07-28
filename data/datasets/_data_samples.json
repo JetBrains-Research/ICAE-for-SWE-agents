@@ -1,0 +1,143 @@
+//////////////////////////////////////////////////////////// pretrain:
+//////////////////////////////////////////////////////////// ae:
+=== Example Details ===                                                                                                                                                                       
+Task type: Autoencoding                                                                                                                                                                       
+Input length: 28                                                                                                                                                                              
+Prompt+Answer length: 39                                                                                                                                                                      
+Labels length: 39                                                                                                                                                                             
+                                                                                                                                                                                              
+Input text:                                                                                                                                                                                   
+<|im_start|>user                                                                                                                                                                              
+ so much that, before accepting the Saint Laurent position, he insisted that François-H<|im_end|>                                                                                             
+<|im_start|>assistant                                                                                                                                                                         
+<think>                                                                                                                                                                                       
+                                                                                                                                                                                              
+</think>                                                                                                                                                                                      
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+                                                                                                                                                                                              
+Prompt+Answer text:                                                                                                                                                                           
+<|im_start|>user                                                                                                                                                                              
+MEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKEN<|im_end|>                                                                                                            
+<|im_start|>assistant                                                                                                                                                                         
+<think>                                                                                                                                                                                       
+                                                                                                                                                                                              
+</think>                                                                                                                                                                                      
+                                                                                                                                                                                              
+ so much that, before accepting the Saint Laurent position, he insisted that François-H<|im_end|> 
+=====================
+
+//////////////////////////////////////////////////////////////lm:
+=== Example Details ===                                                                                                                                                                       
+Task type: Language Modeling                                                                                                                                                                  
+Input length: 28                                                                                                                                                                              
+Prompt+Answer length: 36                                                                                                                                                                      
+Labels length: 36                                                                                                                                                                             
+                                                                                                                                                                                              
+Input text:                                                                                                                                                                                   
+<|im_start|>user
+ few months has been on Ebates. Right now I have 26 dollars<|im_end|>
+<|im_start|>assistant
+<think>
+
+</think>
+
+
+
+Prompt+Answer text:
+<|im_start|>user
+MEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKEN<|im_end|>
+<|im_start|>assistant
+<think>
+
+</think>
+
+ that will deposited to be me through PayPal sometime this month — partly because of purchases
+=====================
+
+
+//////////////////////////////////////////////////////////// finetune:
+=== Example Details ===
+Task type: Language Modeling
+Input length: 153
+Prompt+Answer length: 83
+Labels length: 83
+
+Input text:
+<|im_start|>user
+In December 1547, Francis was in Malacca (Malaysia) waiting to return to Goa (India) when he met a low-ranked samurai named Anjiro (possibly spelled "Yajiro"). Anjiro was not an intellectual, but he impressed Xavier because he took careful notes of everything he said in church. Xavier made the decision to go to Japan in part because this low-ranking samurai convinced him in Portuguese that the Japanese people were highly educated and eager to learn. They were hard workers and respectful of authority. In their laws and customs they were led by reason, and, should the Christian faith convince them of its truth, they would accept it en masse.<|im_end|>
+<|im_start|>assistant
+<think>
+
+</think>
+
+
+
+Prompt+Answer text:
+<|im_start|>user
+MEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENBased on the context, answer the following question in 5 words or less without formatting: Who impressed Xavier by taking notes in church?<|im_end|>
+<|im_start|>assistant
+<think>
+
+</think>
+
+Anjiro<|im_end|>
+=====================
+
+//////////////////////////////////////////////////////////// inference:
+//////////////////////////////////////////////////////// ae:
+=== Example Details ===
+Task type: Autoencoding
+Input length: 28
+Prompt+Answer length: 39
+Labels length: 39
+
+Input text:
+<|im_start|>user
+The agreements include fixed annual carriage fees of £30m for the channels with<|im_end|>
+<|im_start|>assistant
+<think>
+
+</think>
+
+
+
+Prompt+Answer text:
+<|im_start|>user
+MEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKEN<|im_end|>
+<|im_start|>assistant
+<think>
+
+</think>
+
+The agreements include fixed annual carriage fees of £30m for the channels with<|im_end|>
+
+=====================
+
+//////////////////////////////////////////////////////////// lm:
+=== Example Details ===
+Task type: Language Modeling
+Input length: 197
+Prompt+Answer length: 105
+Labels length: 105
+
+Input text:
+<|im_start|>user
+For many geologic applications, isotope ratios of radioactive elements are measured in minerals that give the amount of time that has passed since a rock passed through its particular closure temperature, the point at which different radiometric isotopes stop diffusing into and out of the crystal lattice. These are used in geochronologic and thermochronologic studies. Common methods include uranium-lead dating, potassium-argon dating, argon-argon dating and uranium-thorium dating. These methods are used for a variety of applications. Dating of lava and volcanic ash layers found within a stratigraphic sequence can provide absolute age data for sedimentary rock units which do not contain radioactive isotopes and calibrate relative dating techniques. These methods can also be used to determine ages of pluton emplacement. Thermochemical techniques can be used to determine temperature profiles within the crust, the uplift of mountain ranges, and paleotopography.<|im_end|>
+<|im_start|>assistant
+<think>
+
+</think>
+
+
+
+Prompt+Answer text:
+<|im_start|>user
+MEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENMEMTOKENBased on the context, answer the following question in 5 words or less without formatting: The point at which different radiometric isotopes stop diffusing into and out of the crystal lattice is called what?<|im_end|>
+<|im_start|>assistant
+<think>
+
+</think>
+
+
+=====================

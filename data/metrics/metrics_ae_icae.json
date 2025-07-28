@@ -2,8 +2,29 @@
     "task": "ae",
     "model_type": "icae",
     "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "icae/data/checkpoints/pretrain_1207/checkpoint-6000/model.safetensors",
+    "mean_bleu": 0.731160734787724,
+    "num_samples": 100
+}{
+    "task": "ae",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
     "restore_from": "icae/data/checkpoints/pretrain_1207/checkpoint-9000/model.safetensors",
     "mean_bleu": 0.9415694435323835,
+    "num_samples": 100
+}{
+    "task": "ae",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "icae/data/checkpoints/pretrain_1207/checkpoint-12000/model.safetensors",
+    "mean_bleu": 0.9635117447787751,
+    "num_samples": 100
+}{
+    "task": "ae",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "icae/data/checkpoints/pretrain_1207/checkpoint-15000/model.safetensors",
+    "mean_bleu": 0.8926807111264854,
     "num_samples": 100
 }{
     "task": "ae",
@@ -23,21 +44,84 @@
     "task": "ae",
     "model_type": "icae",
     "model_name_or_path": "Qwen/Qwen3-8B",
-    "restore_from": "icae/data/checkpoints/pretrain_1207/checkpoint-6000/model.safetensors",
-    "mean_bleu": 0.731160734787724,
+    "restore_from": "icae/data/checkpoints/pretrain_1407_16_4_10M/checkpoint-6000/model.safetensors",
+    "mean_bleu": 0.9641979118784225,
+    "num_samples": 500
+}{
+    "task": "ae",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "icae/data/checkpoints/pretrain_1407_16_4_10M/checkpoint-9000/model.safetensors",
+    "mean_bleu": 0.9752964497178538,
+    "num_samples": 500
+}{
+    "task": "ae",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "icae/data/checkpoints/pretrain_1407_16_4_10M/checkpoint-12000/model.safetensors",
+    "mean_bleu": 0.9736217162568406,
+    "num_samples": 500
+}{
+    "task": "ae",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "icae/data/checkpoints/pretrain_1407_16_4_10M/checkpoint-21000/model.safetensors",
+    "mean_bleu": 0.9817170956387806,
+    "num_samples": 500
+}{
+    "task": "ae",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "icae/data/checkpoints/pretrain/pretrain_2607_1024_4_1B/checkpoint-3000/model.safetensors",
+    "mean_bleu": 0.2415087163583547,
     "num_samples": 100
 }{
     "task": "ae",
     "model_type": "icae",
     "model_name_or_path": "Qwen/Qwen3-8B",
-    "restore_from": "icae/data/checkpoints/pretrain_1207/checkpoint-12000/model.safetensors",
-    "mean_bleu": 0.9635117447787751,
+    "restore_from": "icae/data/checkpoints/pretrain/pretrain_2607_1024_4_1B/checkpoint-6000/model.safetensors",
+    "mean_bleu": 0.8643862229799687,
     "num_samples": 100
 }{
     "task": "ae",
     "model_type": "icae",
     "model_name_or_path": "Qwen/Qwen3-8B",
-    "restore_from": "icae/data/checkpoints/pretrain_1207/checkpoint-15000/model.safetensors",
-    "mean_bleu": 0.8926807111264854,
+    "restore_from": "icae/data/checkpoints/pretrain/pretrain_2607_1024_4_1B/checkpoint-9000/model.safetensors",
+    "mean_bleu": 0.9087323528662097,
+    "num_samples": 100
+}{
+    "task": "ae",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "icae/data/checkpoints/pretrain/pretrain_2607_1024_4_1B/checkpoint-12000/model.safetensors",
+    "mean_bleu": 0.935910125255637,
+    "num_samples": 100
+}{
+    "task": "ae",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "icae/data/checkpoints/pretrain/pretrain_2607_1024_4_1B/checkpoint-15000/model.safetensors",
+    "mean_bleu": 0.9269145675756879,
+    "num_samples": 100
+}{
+    "task": "ae",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "icae/data/checkpoints/pretrain/pretrain_2607_1024_4_1B/checkpoint-18000/model.safetensors",
+    "mean_bleu": 0.9279487741835613,
+    "num_samples": 100
+}{
+    "task": "ae",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "icae/data/checkpoints/pretrain/pretrain_2607_1024_4_1B/checkpoint-21000/model.safetensors",
+    "mean_bleu": 0.9330829565166096,
+    "num_samples": 100
+}{
+    "task": "ae",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "icae/data/checkpoints/pretrain/pretrain_2607_1024_4_1B/checkpoint-24000/model.safetensors",
+    "mean_bleu": 0.9273949821620988,
     "num_samples": 100
 }

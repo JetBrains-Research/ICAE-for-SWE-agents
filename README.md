@@ -44,25 +44,25 @@ All scripts are configured using YAML files located in the `configs/` directory.
 
 To prepare the data see, run the following command:
 ```bash
-CUDA_VISIBLE_DEVICES=X python -m icae.data.prepare_data_for_pretraining --config_path configs/pretrain_config.yaml
+CUDA_VISIBLE_DEVICES=X python -m icae.data.prepare_data_for_pretraining --config_path icae/configs/pretrain_config.yaml
 ```
 To pre-train a model, run the following command:
 ```bash
-CUDA_VISIBLE_DEVICES=X python -m icae.scripts.pretrain --config_path configs/pretrain_config.yaml
+CUDA_VISIBLE_DEVICES=X python -m icae.scripts.pretrain --config_path icae/configs/pretrain_config.yaml
 ```
 
 ### Fine-tuning
 
 To fine-tune a model on the SQuAD dataset, use the following command:
 ```bash
-CUDA_VISIBLE_DEVICES=X python -m icae.scripts.finetune_SQuAD --config_path configs/finetune_config.yaml
+CUDA_VISIBLE_DEVICES=X python -m icae.scripts.finetune_SQuAD --config_path icae/configs/finetune_config.yaml
 ```
 
 ### Inference
 
 To run inference with a fine-tuned model on the SQuAD dataset, use the command below. This script can perform two tasks: `ae` (autoencoding) and `qa` (question answering), which can be specified in the config file.
 ```bash
-CUDA_VISIBLE_DEVICES=X python -m icae.scripts.inference_SQuAD --config_path configs/finetune_config.yaml
+CUDA_VISIBLE_DEVICES=X python -m icae.scripts.inference_SQuAD --config_path icae/configs/finetune_config.yaml
 ```
 
 ## Notes
