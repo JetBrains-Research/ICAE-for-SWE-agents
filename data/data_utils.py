@@ -1,3 +1,4 @@
+import time
 import torch
 import re
 import string
@@ -34,7 +35,7 @@ __all__ = [
 # CORE FUNCTIONS
 #######################
 ### this is actually only for Qwen
-def create_icae_example(input_tokens, lm_target_tokens, is_ae, model, question_tokens=None):
+def create_icae_example(input_tokens, lm_target_tokens, task_type, model, text_tokens=None):
     """
     Creates a single tokenized example for the ICAE model.
     This function contains the core tokenization logic for both pre-training and fine-tuning.
@@ -42,38 +43,69 @@ def create_icae_example(input_tokens, lm_target_tokens, is_ae, model, question_t
     template_manager = TemplateManager(model.tokenizer)
 
     # For all tasks, `input_tokens` is the content to be encoded.
-    encoder_input_ids = template_manager.create_encoder_input(input_tokens)
+    encoder_input_ids = template_manager.create_encoder_input(input_tokens) if input_tokens else []
     
     # Compute memory token placeholders
     memory_token_placeholders = model.get_memory_placeholders(torch.LongTensor(encoder_input_ids))
 
+
     # Create decoder prompt and labels based on the task
-    if question_tokens:  # Instruction fine-tuning (e.g., SQuAD)
-        prompt_content = template_manager.create_squad_prompt(memory_token_placeholders, question_tokens)
+    if task_type == "squad":  # Instruction fine-tuning (e.g., SQuAD)
+        prompt_content = template_manager.create_squad_prompt(memory_token_placeholders, text_tokens)
         answer_ids = lm_target_tokens  # The full answer is the target
         labels = [-100] * len(prompt_content) + answer_ids
-    elif is_ae:  # autoencoding
+    elif task_type == "ae":  # autoencoding
         # For AE, we only care about reconstructing the input_tokens.
         a = input_tokens
         prompt_content = template_manager.create_decoder_prompt_ae(memory_token_placeholders, model.ae_token_id)
         answer_ids = template_manager.create_answer_with_suffix(a)
         labels = [-100] * len(prompt_content) + answer_ids
-    else:  # language modeling
+    elif task_type == "lm":  # language modeling
         # For LM, input_tokens is context, lm_target_tokens is the generation target.
-        b = lm_target_tokens
         prompt_content = template_manager.create_decoder_prompt_lm(memory_token_placeholders)
-        answer_ids = b
+        answer_ids = lm_target_tokens
         leave_tokens = model.training_args.leave_tokens_for_lm
         labels = [-100] * len(prompt_content) + ([-100] * leave_tokens + answer_ids[leave_tokens:])
+    elif task_type == "swebench":
+        prompt_content = template_manager.create_swebench_prompt(memory_token_placeholders, text_tokens)
+        answer_ids = lm_target_tokens
+        labels = [-100] * len(prompt_content) + answer_ids
     
     prompt_answer_ids = prompt_content + answer_ids
 
-    return {
+    example = {
         "input_ids": torch.LongTensor(encoder_input_ids),
         "prompt_answer_ids": torch.LongTensor(prompt_answer_ids),
         "labels": torch.LongTensor(labels),
-        "is_ae": torch.LongTensor([1 if is_ae else 0])
+        "is_ae": torch.LongTensor([1 if task_type == "ae" else 0])
     }
+
+    # Print example details
+    # print("\n=== Example Details ===")
+    # print(f"Task type: {task_type}")
+    # print(f"Input length: {len(encoder_input_ids)}")
+    # print(f"Prompt+Answer length: {len(prompt_answer_ids)}")
+    # print(f"Labels length: {len(labels)}")
+    
+    #print("\nInput text:")
+    #print(template_manager._safe_decode_with_mem_tokens(encoder_input_ids))
+    #print("-" * 10 + 'start of prompt+answer text' + '-'*10)
+    #print(template_manager._safe_decode_with_mem_tokens(prompt_answer_ids))
+    #print('-'*10 + 'end of prompt+answer text' + '-'*10)
+    #print("\nLabels:")
+    #non_ignore_positions = [i for i, x in enumerate(labels) if x != -100]
+    #print(f"{non_ignore_positions[0]}...{non_ignore_positions[-1]} are labels out of {len(labels)-1}")
+    '''if len(non_ignore_positions) > 1000:
+        print(f"--------------------------------")
+        print("Very long generation! Here are first 100 and last 100 tokens of prompt_answer_ids at non-ignore positions:")
+        first_100 = [prompt_answer_ids[i] for i in non_ignore_positions[:100]]
+        last_100 = [prompt_answer_ids[i] for i in non_ignore_positions[-100:]]
+        print("First 100:", template_manager._safe_decode_with_mem_tokens(first_100))
+        print("Last 100:", template_manager._safe_decode_with_mem_tokens(last_100)) 
+        print(f"--------------------------------")'''
+    # print("=====================\n")
+
+    return example
 
 ######################## FOR PRETRAINING DATA A WHOLE SEPARATE SCRIPT IS USED ########################
 
@@ -128,9 +160,9 @@ def tokenize_qwen_icae_ft(examples, model, max_length=4096):
     return create_icae_example(
         input_tokens=context_tokens,
         lm_target_tokens=answer_tokens,
-        is_ae=False,
+        task_type="squad",
         model=model,
-        question_tokens=question_tokens
+        text_tokens=question_tokens
     )
 
 
@@ -241,6 +273,25 @@ def compute_bleu(tokenizer, reference_ids: torch.Tensor, hypothesis_ids: torch.T
     hypothesis = tokenizer.decode(hypothesis_ids, skip_special_tokens=True)
     weights = (1.0, 0.0, 0.0, 0.0)
     return sentence_bleu([word_tokenize(reference)], word_tokenize(hypothesis), weights=weights)
+
+def compute_accuracy(reference_ids: torch.Tensor, hypothesis_ids: torch.Tensor) -> float:
+    """Computes token-level accuracy between reference and hypothesis sequences."""
+    if hasattr(reference_ids, 'tolist'):
+        reference_ids = reference_ids.tolist()
+    if hasattr(hypothesis_ids, 'tolist'):
+        hypothesis_ids = hypothesis_ids.tolist()
+
+    len_ref = len(reference_ids)
+    len_hyp = len(hypothesis_ids)
+
+    if not len_ref and not len_hyp:
+        return 1.0
+    if not len_ref or not len_hyp:
+        return 0.0
+
+    matches = sum(1 for x, y in zip(reference_ids, hypothesis_ids) if x == y)
+    
+    return matches / max(len_ref, len_hyp)
 
 def normalize_text(s: str) -> str:
     """Normalize text following SQuAD evaluation rules."""

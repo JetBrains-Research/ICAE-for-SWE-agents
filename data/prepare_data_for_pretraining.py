@@ -79,9 +79,10 @@ def prepare_and_save_data(model_args, data_args, training_args):
 
         # Decide whether this sample is for AE or LM based on lm_ratio
         is_ae = random.random() >= training_args.lm_ratio
+        task_type = "ae" if is_ae else "lm"
 
         processed_example = create_icae_example(
-            input_tokens, lm_target_tokens, is_ae, model
+            input_tokens, lm_target_tokens, task_type, model
         )
         examples.append(processed_example)
 

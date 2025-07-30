@@ -9,6 +9,7 @@ from peft import get_peft_model, LoraConfig
 from safetensors.torch import load_file
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
+from icae.configs.templates import TemplateManager
 from icae.models.model_utils import freeze_model, print_trainable_parameters, print_loaded_layers
 
 
@@ -42,7 +43,7 @@ class ICAE(nn.Module):
         self.icae = AutoModelForCausalLM.from_pretrained(
             self.model_name,
             torch_dtype=self.target_dtype,
-            use_flash_attention_2=False,
+            # attn_implementation="flash_attention_2"
         )
 
         # Shared tokenizer
@@ -55,7 +56,7 @@ class ICAE(nn.Module):
             self.decoder = AutoModelForCausalLM.from_pretrained(
                 self.model_name,
                 torch_dtype=self.target_dtype,
-                use_flash_attention_2=False,
+                attn_implementation="flash_attention_2"
             )
 
         # Model/sequence-level constants
@@ -152,9 +153,7 @@ class ICAE(nn.Module):
 
 
     def _compress(self, input_ids: torch.LongTensor = None):
-        """Compress a (potentially long) ``input_ids`` sequence into memory slots.
-        This method is used during inference.
-        """
+        """Compress a (potentially long) ``input_ids`` sequence into memory slots."""
         total_length = input_ids.size(1)
         num_segments = self._compute_num_segments(total_length)
         segment_length = math.ceil(total_length / num_segments)
@@ -187,23 +186,24 @@ class ICAE(nn.Module):
                 )
                 encode_position_ids = torch.cat([position_ids, mem_position_ids], dim=1)
 
-                segment_compressed_memory = self.icae(
-                    position_ids=encode_position_ids,
+                ### TODO: check if this is correct instead of just using self.icae(..., output_hidden_states=True)
+                segment_compressed_memory = self.icae.get_base_model().model(
                     inputs_embeds=segment_input_embedding,
-                    output_hidden_states=True,
-                )
+                    position_ids=encode_position_ids,
+                    output_hidden_states=False,
+                ).last_hidden_state
             else:
-                segment_compressed_memory = self.icae(
-                    inputs_embeds=segment_input_embedding, output_hidden_states=True
-                )
-            segment_compressed_memory = segment_compressed_memory.hidden_states[-1]
+                segment_compressed_memory = self.icae.get_base_model().model(
+                    inputs_embeds=segment_input_embedding,
+                    output_hidden_states=False,
+                ).last_hidden_state
 
             # collect memory tokens
             compressed_memory[
                 segment_idx * self.mem_size : self.mem_size * (segment_idx + 1)
             ] = segment_compressed_memory[mem_flag]
 
-            ### we spend more memory, but it's faster
+            ### TODO: throughtly check this! i believe that with this commented out we spend more memory, but it's faster
             # del segment_input_ids, segment_input_embedding
             # torch.cuda.empty_cache()
 
@@ -217,7 +217,7 @@ class ICAE(nn.Module):
                 inputs_embeds=embeddings,
                 past_key_values=past_key_values,
                 use_cache=use_cache,
-                output_hidden_states=True
+                output_hidden_states=False
             )
         else:
             # Fall back to the base model with LoRA adapters disabled
@@ -226,7 +226,7 @@ class ICAE(nn.Module):
                     inputs_embeds=embeddings,
                     past_key_values=past_key_values,
                     use_cache=use_cache,
-                    output_hidden_states=True
+                    output_hidden_states=False
                 )
 
 
@@ -253,14 +253,19 @@ class ICAE(nn.Module):
     # ------------------------------------------------------------------
     # Main methods
     # ------------------------------------------------------------------
-    def prepare_prompt_embeddings(self, input_ids: torch.LongTensor, prompt_ids: torch.LongTensor) -> torch.Tensor:
+    def prepare_prompt_embeddings(
+            self, 
+            input_ids: torch.LongTensor = None, 
+            prompt_ids: torch.LongTensor = None,
+            compressed_memory: torch.Tensor = None,
+        ) -> torch.Tensor:
         """
             Convenience wrapper that compresses input_ids into memory slots, 
             converts prompt_ids (containing the placeholder tokens) to embeddings, 
             and injects the compressed memory into those placeholders.
         """
         # 1. Compress the long context into fixed-size memory slots
-        compressed_memory = self._compress(input_ids)
+        compressed_memory = self._compress(input_ids) if input_ids is not None else compressed_memory
 
         # 2. Obtain embeddings for the prompt tokens
         prompt_embs = self._tokens_to_embeddings(prompt_ids)
@@ -318,17 +323,19 @@ class ICAE(nn.Module):
         prompt_ids: torch.LongTensor,
         max_new_tokens: int,
         stop_at_eos: bool = True,
+        compressed_memory: torch.Tensor = None,
+        cache = None
     ) -> list:
         """Generate tokens autoregressively given *input_ids* (context to compress)
         and *prompt_ids* (decoder prompt containing placeholder memory tokens).
         """
         # 1. Prepare decoder embeddings
-        prompt_embs = self.prepare_prompt_embeddings(input_ids, prompt_ids)
+        prompt_embs = self.prepare_prompt_embeddings(input_ids, prompt_ids, compressed_memory=compressed_memory)
 
         # 2. Greedy decoding loop
         output_embs = prompt_embs
         generated_tokens = []
-        past_key_values = None
+        past_key_values = cache
 
         for _ in range(max_new_tokens):
             out = self._run_decoder(

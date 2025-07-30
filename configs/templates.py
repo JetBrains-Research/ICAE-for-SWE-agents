@@ -40,9 +40,9 @@ class TemplateManager:
         return tokenized_parts
 
     def _safe_decode_with_mem_tokens(self, token_ids: List[int]) -> str:
-        """Decodes token IDs, replacing None with 'MEMTOKEN' for special tokens."""
+        """Decodes token IDs, replacing None with '<MT>' for special 'MEM_TOKEN' tokens."""
         tokens = self.tokenizer.convert_ids_to_tokens(token_ids)
-        return self.tokenizer.convert_tokens_to_string([t if t is not None else "MEMTOKEN" for t in tokens])
+        return self.tokenizer.convert_tokens_to_string([t if t is not None else "<MT>" for t in tokens])
 
     def _apply_chat_template(self, content: List[int]) -> List[int]:
         """Applies the chat template structure around the content.
@@ -73,3 +73,9 @@ class TemplateManager:
     def create_answer_with_suffix(self, answer_tokens: List[int]) -> List[int]:
         """Pattern: answer + <suffix>"""
         return answer_tokens + self.template_tokens['suffix']
+
+    def create_swebench_prompt(self, memory_tokens: List[int], text_tokens: List[int]) -> List[int]:
+        if memory_tokens:
+            return text_tokens + self._apply_chat_template(memory_tokens) 
+        else:
+            return text_tokens + self.template_tokens['assistant_prefix']

@@ -22,7 +22,7 @@ class SimpleLLM(nn.Module):
         self.llm = AutoModelForCausalLM.from_pretrained(
             self.model_name,
             torch_dtype=torch.float16 if not training_args.bf16 else torch.bfloat16,
-            use_flash_attention_2=False,
+            attn_implementation="flash_attention_2",
             trust_remote_code=True,
         )
 

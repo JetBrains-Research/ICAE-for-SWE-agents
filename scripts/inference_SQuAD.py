@@ -30,7 +30,7 @@ def run_autoencoding(model: ICAE, df, device):
         example = create_icae_example(
             input_tokens=input_tokens,
             lm_target_tokens=[],
-            is_ae=True,
+            task_type="ae",
             model=model,
         )
 
@@ -82,9 +82,9 @@ def run_qa(model, df, device, data_args, model_type="icae"):
             example = create_icae_example(
                 input_tokens=input_tokens,
                 lm_target_tokens=[],  # no answer tokens during inference
-                is_ae=False,
+                task_type="squad",
                 model=model,
-                question_tokens=question_tokens,
+                text_tokens=question_tokens,
             )
 
             input_ids_tensor = example["input_ids"].unsqueeze(0).to(device)
