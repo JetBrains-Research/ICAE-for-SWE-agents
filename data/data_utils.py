@@ -42,12 +42,15 @@ def create_icae_example(input_tokens, lm_target_tokens, task_type, model, text_t
     """
     template_manager = TemplateManager(model.tokenizer)
 
-    # For all tasks, `input_tokens` is the content to be encoded.
-    encoder_input_ids = template_manager.create_encoder_input(input_tokens) if input_tokens else []
-    
-    # Compute memory token placeholders
-    memory_token_placeholders = model.get_memory_placeholders(torch.LongTensor(encoder_input_ids))
 
+    # compress
+    if len(input_tokens) >= model.mem_size:
+        encoder_input_ids = template_manager.create_encoder_input(input_tokens)
+        # Compute memory token placeholders *without* the template overhead !
+        memory_token_placeholders = model.get_memory_placeholders(torch.LongTensor(input_tokens))
+    else: ### do not compress anything
+        encoder_input_ids = input_tokens
+        memory_token_placeholders = input_tokens
 
     # Create decoder prompt and labels based on the task
     if task_type == "squad":  # Instruction fine-tuning (e.g., SQuAD)

@@ -15,15 +15,20 @@ def load_conversation_trajectories(path):
     with open(path, "r", encoding="utf-8") as f:
         return [json.loads(line) for line in f]
 
+
 @torch.no_grad()
 def _run(model, trajs, device, max_len):
     bleu_scores, accuracy_scores = [], []
     compress_times_all = []
     gen_times_all = []
     tm = TemplateManager(model.tokenizer)
-    for traj in tqdm(trajs, desc="Traj Inference"):
+    for traj_num, traj in enumerate(tqdm(trajs, desc="Traj Inference")):
+        print("="*10 + f"Start trajectory {traj_num}" + "="*10)
         compress_times_traj = []
         gen_times_traj = []
+        compression_rates_traj = []
+        total_original_tokens = 0
+        total_compressed_tokens = 0
         msgs = traj.get("messages", traj.get("message_sequence", []))
         # cache = DynamicCache()
         messages_history = []
@@ -53,6 +58,7 @@ def _run(model, trajs, device, max_len):
 
         # Step 2: Process remaining user-assistant pairs
         for i in range(3, len(msgs) - 1, 2):
+            print(f"-"*5 + f"Starting turn {i}" + "-"*5)
             if i + 1 >= len(msgs):
                 continue
                 
@@ -63,26 +69,37 @@ def _run(model, trajs, device, max_len):
             if curr_role != "user":
                 raise ValueError(f"Current role is {curr_role}, expected user")
             user_content = curr_msg.get("content", "")
+            user_tokens = model.tokenizer(user_content, truncation=False)["input_ids"]
+            total_original_tokens += len(user_tokens)
             
             next_role = next_msg.get("role", "")
             if next_role != "assistant":
                 raise ValueError(f"Next role is {next_role}, expected assistant") 
             assistant_content = next_msg.get("content", "")
-            
-            ### TODO: it is here just to be safe
-            with torch.no_grad():
+            assistant_tokens = model.tokenizer(assistant_content, truncation=False)["input_ids"]
+            total_original_tokens += len(assistant_tokens)
+            total_compressed_tokens += len(assistant_tokens)
+
+
+            ### TODO: maybe decide differently? Now we just do not compress if the user message is shorter than the memory size
+            if len(user_tokens) >= model.mem_size:
                 # Compress user message and append it to the accumulated compressed memory
-                user_tokens = model.tokenizer(user_content, truncation=False)["input_ids"]
                 start_time = time.time()
                 user_tokens_compressed = model._compress(torch.LongTensor(user_tokens).unsqueeze(0).to(device))
                 compress_duration = time.time() - start_time
                 compress_times_traj.append(compress_duration)
                 compress_times_all.append(compress_duration)
-                print(f"[TIME] Compression time: {compress_duration:.4f}s")
                 accumulated_compressed_memory = torch.cat([accumulated_compressed_memory, user_tokens_compressed], dim=0) if accumulated_compressed_memory is not None else user_tokens_compressed
+                compression_rate = len(user_tokens) / user_tokens_compressed.size(0)
+            else:
+                user_tokens_compressed = torch.LongTensor(user_tokens)
+                compress_duration = 0
+                compression_rate = 1.0
+            total_compressed_tokens += user_tokens_compressed.size(0)
+            compression_rates_traj.append(compression_rate)
 
             # Process assistant message
-            assistant_tokens = tm.create_answer_with_suffix(model.tokenizer(assistant_content, truncation=False)["input_ids"])
+            assistant_tokens = tm.create_answer_with_suffix(assistant_tokens)
 
             # Create ICAE example
             example = create_icae_example(
@@ -114,15 +131,6 @@ def _run(model, trajs, device, max_len):
             gen_duration = time.time() - start_time
             gen_times_traj.append(gen_duration)
             gen_times_all.append(gen_duration)
-            print(f"[TIME] Generation time: {gen_duration:.4f}s")
-            # If this is the last assistant response in the trajectory, print mean times for this trajectory
-            if i + 3 >= len(msgs):
-                mean_comp_traj = float(np.mean(compress_times_traj)) if compress_times_traj else 0.0
-                mean_gen_traj = float(np.mean(gen_times_traj)) if gen_times_traj else 0.0
-                print(f"[TIME] Trajectory summary — mean compression: {mean_comp_traj:.4f}s, mean generation: {mean_gen_traj:.4f}s")
-                print(f"[DEBUG] Mean bleu: {np.mean(bleu_scores):.4f}")
-                print(f"[DEBUG] Mean accuracy: {np.mean(accuracy_scores):.4f}")
-
             ref_ids = torch.LongTensor(model.tokenizer(assistant_content, truncation=False)["input_ids"])
             hyp_ids = torch.LongTensor(gen)
 
@@ -130,16 +138,23 @@ def _run(model, trajs, device, max_len):
             accuracy_score = compute_accuracy(ref_ids, hyp_ids)
             bleu_scores.append(bleu_score)
             accuracy_scores.append(accuracy_score)
-            print(f"[DEBUG] BLEU-1: {bleu_score:.4f}")
-            print(f"[DEBUG] Accuracy: {accuracy_score:.4f}")
 
+            print(f"[TIME] Compression:\t {compress_duration:.2f}s for {len(user_tokens)} tokens (x{compression_rate:.1f} compression)")
+            print(f"[TIME] Generation:\t {gen_duration:.2f}s for {len(gen)} tokens ({len(gen) / gen_duration:.1f} tokens/s) with {prompt_len} tokens in prompt")
+            print(f"[METRICS] BLEU-1:\t {bleu_score:.4f}, Accuracy:\t {accuracy_score:.4f}")
 
-            '''if bleu_score >= 0.9 or bleu_score <= 0.1:
-                print(f"--------------------------------")
-                generated_text = model.tokenizer.decode(gen, skip_special_tokens=True)
-                print(f"[DEBUG] Generated text: {generated_text} (len: {len(generated_text)})")
-                print(f"[DEBUG] Reference text: {assistant_content} (len: {len(assistant_content)})")
-                print(f"--------------------------------")'''
+            # If this is the last assistant response in the trajectory, print mean times for this trajectory
+            if i + 3 >= len(msgs):
+                mean_comp_traj = float(np.mean(compress_times_traj)) if compress_times_traj else 0.0
+                mean_gen_traj = float(np.mean(gen_times_traj)) if gen_times_traj else 0.0
+                mean_comp_rate = float(np.mean(compression_rates_traj)) if compression_rates_traj else 1.0
+                print(f"Trajectory summary — mean compression: {mean_comp_traj:.4f}s, mean generation: {mean_gen_traj:.4f}s")
+                print(f"Mean compression rate of tool_outputs: x{mean_comp_rate:.1f}")
+                print(f"Mean bleu: {np.mean(bleu_scores):.4f}")
+                print(f"Mean accuracy: {np.mean(accuracy_scores):.4f}")
+                print(f"Total tokens — original: {total_original_tokens}, compressed: {total_compressed_tokens}")
+                print(f"Tokens saved: {total_original_tokens - total_compressed_tokens} (x{total_original_tokens / total_compressed_tokens:.1f} total compression)")
+                print(f"="*10 + f"End trajectory {traj_num}" + "="*10)
     return bleu_scores, accuracy_scores
 
 

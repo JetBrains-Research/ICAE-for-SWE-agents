@@ -237,6 +237,9 @@ class ICAE(nn.Module):
         memory_vectors: torch.Tensor,
     ) -> torch.Tensor:
         """Replace placeholder memory-token embeddings inside *embeddings* with *memory_vectors*."""
+        if memory_vectors is None:
+            return embeddings
+        
         mem_mask = (token_ids >= self.vocab_size) & (token_ids < self.vocab_size + self.mem_size)  # shape (B, L)
 
         # Allow a leading batch dimension on memory_vectors
