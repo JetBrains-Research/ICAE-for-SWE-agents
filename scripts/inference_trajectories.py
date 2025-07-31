@@ -5,7 +5,7 @@ import time
 from tqdm import tqdm
 from transformers import DynamicCache
 from icae.configs import get_config
-from icae.data.data_utils import create_icae_example, compute_bleu, compute_accuracy
+from icae.data.data_utils import create_icae_example, compute_bleu, compute_accuracy, truncate_cache
 from icae.models import ICAE
 from icae.configs.templates import TemplateManager
 

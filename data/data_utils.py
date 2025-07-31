@@ -7,6 +7,7 @@ import pandas as pd
 from nltk.translate.bleu_score import sentence_bleu
 from nltk.tokenize import word_tokenize
 from icae.configs import TemplateManager
+from transformers import DynamicCache
 
 
 __all__ = [
@@ -24,6 +25,7 @@ __all__ = [
     "tokenize_qwen_llm_ft",
     
     # Utility
+    "truncate_cache",
     "compute_bleu",
     "normalize_text",
     "compute_exact_match",
@@ -269,6 +271,15 @@ def tokenize_qwen_llm_ft(examples, tokenizer, max_length):
 # UTILITY
 #######################
 
+def truncate_cache(cache: "DynamicCache", keep: int):
+    for i in range(len(cache.key_cache)):
+        cache.key_cache[i]  = cache.key_cache[i][..., :keep, :].contiguous()
+        cache.value_cache[i] = cache.value_cache[i][..., :keep, :].contiguous()
+
+    if hasattr(cache, "_seen_tokens"):
+        cache._seen_tokens = keep
+    elif hasattr(cache, "seen_tokens"):
+        cache.seen_tokens = keep
 
 def compute_bleu(tokenizer, reference_ids: torch.Tensor, hypothesis_ids: torch.Tensor) -> float:
     """Compute BLEU score between reference and hypothesis (default BLEU-1)."""

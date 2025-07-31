@@ -104,6 +104,7 @@ class ICAE(nn.Module):
         print("Freezing the decoder...")
         freeze_model(self.decoder)
         self.decoder.eval()
+        self.icae.eval()
 
         self.icae = self.icae.to(device=device, dtype=self.target_dtype)
         self.decoder = self.decoder.to(device=device, dtype=self.target_dtype)
