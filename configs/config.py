@@ -41,6 +41,7 @@ class TrainingArguments(transformers.TrainingArguments):
     train: bool = field(default=None)
     eval_ae_num_samples: int = field(default=None)
     model_max_length: int = field(default=None)
+    num_training_steps: int = field(default=None)
 
 @dataclass
 class InferenceArguments:

@@ -1,4 +1,5 @@
 import time
+import numpy as np
 import torch
 import re
 import string
@@ -46,11 +47,14 @@ def create_icae_example(input_tokens, lm_target_tokens, task_type, model, text_t
 
 
     # compress
-    if len(input_tokens) >= model.mem_size:
+    if len(input_tokens) >= model.mem_size:    
         encoder_input_ids = template_manager.create_encoder_input(input_tokens)
         # Compute memory token placeholders *without* the template overhead !
         memory_token_placeholders = model.get_memory_placeholders(torch.LongTensor(input_tokens))
-    else: ### do not compress anything
+        ### if we want to delete tool outputs we do this:
+        # encoder_input_ids = template_manager.create_encoder_input([])
+        # memory_token_placeholders = model.tokenizer('<TOOL_OUTPUT>', add_special_tokens=False)['input_ids']
+    else: # do not compress anything
         encoder_input_ids = input_tokens
         memory_token_placeholders = input_tokens
 
@@ -290,22 +294,15 @@ def compute_bleu(tokenizer, reference_ids: torch.Tensor, hypothesis_ids: torch.T
 
 def compute_accuracy(reference_ids: torch.Tensor, hypothesis_ids: torch.Tensor) -> float:
     """Computes token-level accuracy between reference and hypothesis sequences."""
-    if hasattr(reference_ids, 'tolist'):
-        reference_ids = reference_ids.tolist()
-    if hasattr(hypothesis_ids, 'tolist'):
-        hypothesis_ids = hypothesis_ids.tolist()
+    # Convert to numpy arrays for consistent handling
+    if isinstance(reference_ids, torch.Tensor):
+        reference_ids = reference_ids.cpu().numpy()
+    if isinstance(hypothesis_ids, torch.Tensor):
+        hypothesis_ids = hypothesis_ids.cpu().numpy()
 
-    len_ref = len(reference_ids)
-    len_hyp = len(hypothesis_ids)
-
-    if not len_ref and not len_hyp:
-        return 1.0
-    if not len_ref or not len_hyp:
-        return 0.0
-
-    matches = sum(1 for x, y in zip(reference_ids, hypothesis_ids) if x == y)
-    
-    return matches / max(len_ref, len_hyp)
+    # Compare sequences element-wise up to the minimum length
+    matches = (reference_ids == hypothesis_ids)
+    return float(np.mean(matches))
 
 def normalize_text(s: str) -> str:
     """Normalize text following SQuAD evaluation rules."""

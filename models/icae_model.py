@@ -96,6 +96,7 @@ class ICAE(nn.Module):
 
         if self.training_args.train:
             self._init_training_components()
+            # self.decoder.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
 
     # ------------------------------------------------------------------
     # Helper methods
@@ -103,6 +104,7 @@ class ICAE(nn.Module):
     def _init_training_components(self):
         print("Freezing the decoder...")
         freeze_model(self.decoder)
+        # freeze_model(self.icae)
         self.decoder.eval()
         self.icae.eval()
 
@@ -163,7 +165,7 @@ class ICAE(nn.Module):
         compressed_memory = torch.zeros(
             (max_compressed_length, self.dim),
             dtype=self.target_dtype,
-            device=input_ids.device,
+            device="cpu",
         )
 
         for segment_idx in range(num_segments):
@@ -202,13 +204,13 @@ class ICAE(nn.Module):
             # collect memory tokens
             compressed_memory[
                 segment_idx * self.mem_size : self.mem_size * (segment_idx + 1)
-            ] = segment_compressed_memory[mem_flag]
+            ] = segment_compressed_memory[mem_flag].cpu()
 
             ### TODO: throughtly check this! i believe that with this commented out we spend more memory, but it's faster
-            # del segment_input_ids, segment_input_embedding
-            # torch.cuda.empty_cache()
+            del segment_input_ids, segment_input_embedding, segment_compressed_memory
+            torch.cuda.empty_cache()
 
-        return compressed_memory 
+        return compressed_memory.to(input_ids.device)
 
 
     def _run_decoder(self, embeddings: torch.Tensor, past_key_values=None, use_cache=True):
@@ -289,12 +291,15 @@ class ICAE(nn.Module):
         prompt_answer_ids: torch.LongTensor = None,
         labels: Optional[torch.LongTensor] = None,
         is_ae: Optional[torch.LongTensor] = None,
+        compressed_memory: torch.Tensor = None,
+        cache = None,
     ):
         # Prepare embeddings
-        prompt_answer_embs = self.prepare_prompt_embeddings(input_ids, prompt_answer_ids)
+        prompt_answer_embs = self.prepare_prompt_embeddings(input_ids, prompt_answer_ids, compressed_memory=compressed_memory)
 
-        # Decode once over the entire prompt+answer sequence
-        decoder_outputs = self._run_decoder(embeddings=prompt_answer_embs, use_cache=False)
+        past_key_values = cache
+
+        decoder_outputs = self._run_decoder(embeddings=prompt_answer_embs, past_key_values=past_key_values, use_cache=True)
 
         logits = decoder_outputs.logits
         effective_logits = logits[:, :-1, :].reshape(-1, logits.size(-1))
