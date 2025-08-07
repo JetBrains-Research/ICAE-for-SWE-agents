@@ -96,7 +96,8 @@ class ICAE(nn.Module):
 
         if self.training_args.train:
             self._init_training_components()
-            # self.decoder.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
+            self.icae.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
+            self.decoder.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
 
     # ------------------------------------------------------------------
     # Helper methods
