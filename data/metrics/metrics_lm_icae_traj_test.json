@@ -1,0 +1,21 @@
+accuracies on last 154 trajectories of hf test set:
+
+NO_ICAE full data: 0.9031 / 0.9000 if cut by 32k
+NO_ICAE delete all tool outputs: 0.8850
+NO_ICAE delete long tool outputs: 0.8911
+pretrain/pretrain_1207/checkpoint-9000/model.safetensors (mem_size=128): 0.8872; compression x2.2
+pretrain/pretrain_2607_1024_4_1B/checkpoint-12000/model.safetensors (mem_size=256): 0.8855; compression x2
+
+finetune/swebench-full-base/checkpoint-500/model.safetensors: 0.9033 (mem_size=256)
+finetune/swebench-full-256-0808/checkpoint-42058/model.safetensors: 0.9078 (mem_size=256)
+finetune/swebench-full-256-0808/checkpoint-68546/model.safetensors: 0.9083 (mem_size=256)
+finetune/swebench-full-256-0808/checkpoint-81673/model.safetensors: 0.9090 (mem_size=256)
+finetune/swebench-full-256-0808/checkpoint-121791/model.safetensors: 0.9089 [cut by 32k] (mem_size=256)
+
+Cut by 32k:
+igors-qwen-lora-1108: 0.9153
+igors-qwen-full-1108: 0.9497
+
+
+igors-qwen-lora-1108 == /mnt/shared-fs/gelvan/igor-lora-qwen
+igors-qwen-full-1108 == /mnt/shared-fs/slinko/projects/LLaMA-Factory/saves/Qwen3-8B/full/smith_qwen3-8b-no-think-full-lr5e-6-warmup100-adamw-torch____ft_xml_0p9/checkpoint-1767/
