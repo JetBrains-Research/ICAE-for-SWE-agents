@@ -6,12 +6,15 @@ lora_dropout: 0.05
 train: True # Needed for ICAE decoder
 lora_target_modules: ["q_proj", "v_proj"]
 use_position_identifiers: True
+do_compress: True # this is for inference in reality
+freeze_encoder: False
+freeze_decoder: True
 
 
 ### Data Arguments
 max_train_samples: 10000
 max_eval_samples: 500
-max_out_length: 15       # 15 tokens is mostly enough for squad
+max_out_length: 250       # 15 tokens is mostly enough for squad, now it is same as real answer length for inference
 # Pretrain Data Arguments
 dataset_repo: "DKYoon/SlimPajama-6B"
 token_num: 1000000000 # 1B tokens
@@ -23,16 +26,17 @@ eval_size: 500
 
 
 ### Training Arguments -- This depends on the pretraining or finetuning
-output_dir: ""
+output_dir: "icae/data/checkpoints/finetune/swebench-full-256-1208-lr8"
 overwrite_output_dir: False
 per_device_train_batch_size: 1
 per_device_eval_batch_size: 1
 gradient_accumulation_steps: 1
-learning_rate: 0.00005  #0.00005 is 5e-5 while 0.0001 is 1e-4
+learning_rate: 0.00008  #0.00005 is 5e-5 while 0.0001 is 1e-4
 max_grad_norm: 2.0
 warmup_steps: 300
 max_steps: -1
-num_train_epochs: 3
+num_train_epochs: 1 # 100
+num_training_steps: 150000
 logging_steps: 1000
 train: True
 do_train: True
@@ -45,26 +49,23 @@ bf16: True
 fp16: False
 optim: "adamw_torch"
 model_max_length: 4096  # 4096 OR 5120
-fixed_mem_size: 128
+fixed_mem_size: 256
 mean_compression_rate: 4
 min_tokens_for_lm: 64
 leave_tokens_for_lm: 0
 lm_ratio: 0.0
 add_special_token_for_lm: False
-restore_from: "" # "icae/data/checkpoints/icae_pile_pretrain_Qwen3-8b-FULLNEWDATA/checkpoint-6000/model.safetensors" # "icae/data/checkpoints/mistral_pretrained_model/mistral_7b_pretrained_icae.safetensors" # "icae/data/checkpoints/icae_pile_pretrain_Qwen3-8b-FULLNEWDATA/checkpoint-6000/model.safetensors"
+restore_from: "icae/data/checkpoints/pretrain/pretrain_2607_1024_4_1B/checkpoint-12000/model.safetensors"
 dataloader_num_workers: 0
-dataloader_pin_memory: True
+dataloader_pin_memory: False
 dataloader_drop_last: True
 seed: 42
-# dataloader_persistent_workers: False
-# remove_unused_columns: True
+gradient_checkpointing: True
 
 
 ### Inference Arguments
-task: "ae" # "ae" or "lm"
-restore_from: "icae/data/checkpoints/pretrain_1207/checkpoint-18000/model.safetensors" # "icae/data/checkpoints/icae_pile_pretrain_Qwen3-8b-FULLNEWDATA/checkpoint-6000/model.safetensors"  #"icae/data/checkpoints/qwen_finetune_1207-llm/checkpoint-5000/model.safetensors"  #  "icae/data/checkpoints/qwen_finetune_1207-2/checkpoint-15000/model.safetensors" #"icae/data/checkpoints/qwen_finetune_1107/checkpoint-5000/model.safetensors"
-num_samples: 100
+task: "lm" # "ae" or "lm"
+restore_from: "icae/data/checkpoints/pretrain/pretrain_2607_1024_4_1B/checkpoint-12000/model.safetensors"
+num_samples: 1
 use_cpu: False
 use_position_identifiers: True
-
-
