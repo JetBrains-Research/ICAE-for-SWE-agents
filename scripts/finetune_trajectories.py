@@ -69,10 +69,14 @@ class ICAETrajectoryTrainer(ICAETrainer):
             self.create_scheduler(num_training_steps=args.num_training_steps)
 
         global_step = 0
-        for epoch in range(int(args.num_train_epochs)):
-            for i, traj in enumerate(self.train_dataset):
-                print(f"Now in epoch #{epoch} -- trajectory #{i} of #{len(self.train_dataset)}")
+        total_tokens_trained = 0
+        trajectories_done_counter = 0
+        for epoch in tqdm(range(int(args.num_train_epochs)), desc="Training epochs"):
+            for i, traj in tqdm(enumerate(self.train_dataset), desc=f"Epoch {epoch}", total=len(self.train_dataset)):
                 msgs = traj['input_ids']['messages']
+                trajectory_losses = []
+                trajectory_bleus = []
+                trajectory_accuracies = []
 
                 # --- build initial history ---
                 history = [
@@ -87,7 +91,6 @@ class ICAETrajectoryTrainer(ICAETrainer):
 
                 # --- iterate over remaining user–assistant pairs ---
                 for idx in range(3, len(msgs) - 1, 2):
-                    print(f"Processing turn #{idx} of #{len(msgs)}", end="\t")
                     user_msg, asst_msg = msgs[idx], msgs[idx + 1]
                     if user_msg["role"] != "user" or asst_msg["role"] != "assistant":
                         continue
@@ -95,10 +98,8 @@ class ICAETrajectoryTrainer(ICAETrainer):
                     # 1. tokenise assistant reply
                     asst_tokens = self.model.tokenizer(asst_msg["content"], truncation=False)["input_ids"]
                     asst_tokens = template_mgr.create_answer_with_suffix(asst_tokens)
-                    ### TODO: this is super hacky but needed for now
-                    print(f"asst_tokens: {len(asst_tokens)}, conversation_tokens: {len(conversation_tokens)}")
-                    if len(asst_tokens) > 700 or len(conversation_tokens) > 14_000: #or i == 31 or i == 33 or i == 35:
-                        print(f"Skipping trajectory {i} - response is {len(asst_tokens)} tokens long and conversation is {len(conversation_tokens)} tokens long")
+                    if len(conversation_tokens) > 32_768:
+                        print(f"Skipping trajectory {i} - conversation is {len(conversation_tokens)} tokens long")
                         del accumulated_compressed_memory, conversation_tokens
                         gc.collect()
                         torch.cuda.empty_cache()
@@ -145,6 +146,12 @@ class ICAETrajectoryTrainer(ICAETrainer):
                     self.optimizer.zero_grad(set_to_none=True)
                     if accumulated_compressed_memory is not None:
                         accumulated_compressed_memory = accumulated_compressed_memory.detach()
+                    
+                    num_trained_tokens = (labels != -100).sum().item()
+                    total_tokens_trained += num_trained_tokens
+                    trajectory_losses.append(loss.item())
+
+                    # print(template_mgr._safe_decode_with_mem_tokens(prompt_answer.squeeze(0).tolist()))
 
                     # ------------------------
                     # Compute BLEU and Accuracy metrics from forward logits
@@ -165,16 +172,10 @@ class ICAETrajectoryTrainer(ICAETrainer):
 
 
                     # 5. update context for the next turn
+                    trajectory_bleus.append(bleu_score)
+                    trajectory_accuracies.append(accuracy_score)
                     conversation_tokens = prompt_answer.squeeze(0).tolist()
                     global_step += 1
-
-                    wandb.log({
-                        "train/step_loss": loss.item(),
-                        "train/bleu": bleu_score,
-                        "train/accuracy": accuracy_score,
-                        "train/learning_rate": self.lr_scheduler.get_last_lr()[0],
-                        "step": global_step,
-                    })
 
                     # GPU Memory Profiling
                     if torch.cuda.is_available():
@@ -183,21 +184,13 @@ class ICAETrajectoryTrainer(ICAETrainer):
                         max_allocated_mem = torch.cuda.max_memory_allocated() / 1024**2
                         max_cached_mem = torch.cuda.max_memory_reserved() / 1024**2
 
-                        print(f"\n--- GPU Memory Stats (step {global_step}) ---")
-                        print(f"Allocated: {allocated_mem:.2f} MB")
-                        print(f"Cached: {cached_mem:.2f} MB")
-                        print(f"Peak allocated: {max_allocated_mem:.2f} MB")
-                        print(f"Peak reserved: {max_cached_mem:.2f} MB")
-
                         wandb.log({
                             "gpu/allocated_mb": allocated_mem,
                             "gpu/cached_mb": cached_mem,
                             "gpu/max_allocated_mb": max_allocated_mem,
-                            "gpu/max_cached_mb": max_cached_mem,
-                            "step": global_step,
+                            "gpu/max_cached_mb": max_cached_mem
                         })
 
-                        print("--------------------------------------\n")
 
                         torch.cuda.reset_peak_memory_stats()
 
@@ -210,13 +203,35 @@ class ICAETrajectoryTrainer(ICAETrainer):
                     torch.cuda.empty_cache()
 
                 # ----- end trajectory loop -----
+                trajectories_done_counter += 1
+                if trajectory_losses:
+                    mean_trajectory_loss = sum(trajectory_losses) / len(trajectory_losses)
+                    mean_trajectory_bleu = (sum(trajectory_bleus) / len(trajectory_bleus)) if trajectory_bleus else 0.0
+                    mean_trajectory_accuracy = (sum(trajectory_accuracies) / len(trajectory_accuracies)) if trajectory_accuracies else 0.0
+                    wandb.log({
+                        "train/mean_trajectory_loss": mean_trajectory_loss,
+                        "train/mean_trajectory_bleu": mean_trajectory_bleu,
+                        "train/mean_trajectory_accuracy": mean_trajectory_accuracy,
+                        "train/trajectories_done": trajectories_done_counter,
+                        "train/learning_rate": self.lr_scheduler.get_last_lr()[0],
+                        "train/total_tokens_trained": total_tokens_trained,
+                        "step": global_step,
+                    })
+
+                # Checkpointing
+                save_every_n_trajectories = 500
+                if trajectories_done_counter > 0 and trajectories_done_counter % save_every_n_trajectories == 0:
+                    print(f"Saving checkpoint after {trajectories_done_counter} trajectories at step {global_step}...")
+                    self.state.global_step = global_step
+                    self._save_checkpoint(model=self.model, trial=trial)
+                    print(f"Checkpoint saved at {args.output_dir}_checkpoint_{global_step}.safetensors")
+
+                ### maybe also do eval here?
 
             ### TODO: do we need this?
             # optional epoch-level evaluation / checkpoint save
             #if args.evaluation_strategy == IntervalStrategy.EPOCH:
             #    self.evaluate()
-            #if args.save_strategy == IntervalStrategy.EPOCH:
-            #    self._save_checkpoint(model=self.model, trial=trial)
 
         self.is_in_train = False
         return global_step
@@ -230,14 +245,16 @@ def main():
 
     os.environ.setdefault("WANDB_PROJECT", "icae-swebench-finetune")
 
+     # Ensure the output directory exists and is used for wandb logs
+    os.makedirs(training_args.output_dir, exist_ok=True)
+
     wandb.init(
         project=os.environ["WANDB_PROJECT"],
         config={**vars(model_args), **vars(data_args), **vars(training_args)},
         name=f"{training_args.output_dir}",
+        dir=training_args.output_dir,
     )
 
-    # Ensure gradient checkpointing kwargs present
-    # training_args.gradient_checkpointing_kwargs = {"use_reentrant": False}
 
     # ---------------------------------------------------------------------
     # Data loading

@@ -34,8 +34,6 @@ def main():
     if torch.cuda.is_available():
         torch.cuda.set_device(0)
     
-    training_args.gradient_checkpointing_kwargs = {"use_reentrant": False}  # manually add this argument in the code
-
     
     # check model_args.mem_size and min_tokens_for_lm
     assert (training_args.fixed_mem_size & (training_args.fixed_mem_size - 1)) == 0, "training_args.fixed_mem_size must be a power of 2"    

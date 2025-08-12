@@ -31,9 +31,6 @@ def main():
         training_args.accelerator_config.dataloader_persistent_workers = True
         training_args.accelerator_config.dataloader_prefetch_factor = 4
         
-    if hasattr(training_args, 'gradient_checkpointing') and training_args.gradient_checkpointing:
-        training_args.gradient_checkpointing_kwargs = {"use_reentrant": False}
-    
     # check model_args.mem_size and min_tokens_for_lm
     assert (training_args.fixed_mem_size & (training_args.fixed_mem_size - 1)) == 0, "training_args.fixed_mem_size must be a power of 2"    
     assert training_args.leave_tokens_for_lm <= training_args.min_tokens_for_lm, "leave_tokens_for_lm should be fewer than min_tokens_for_lm"

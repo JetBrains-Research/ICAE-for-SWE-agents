@@ -47,7 +47,7 @@ def create_icae_example(input_tokens, lm_target_tokens, task_type, model, text_t
 
 
     # compress
-    if len(input_tokens) >= model.mem_size:    
+    if model.model_args.do_compress and len(input_tokens) >= model.mem_size:
         encoder_input_ids = template_manager.create_encoder_input(input_tokens)
         # Compute memory token placeholders *without* the template overhead !
         memory_token_placeholders = model.get_memory_placeholders(torch.LongTensor(input_tokens))

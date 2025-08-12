@@ -6,6 +6,7 @@ from transformers.trainer_utils import get_last_checkpoint
 from tqdm import tqdm
 import logging
 from safetensors.torch import load_file
+from transformers.modeling_utils import load_sharded_checkpoint
 from icae.data.data_utils import compute_bleu
 import wandb
 
@@ -31,7 +32,16 @@ def print_trainable_parameters(model):
 
 def print_loaded_layers(model: torch.nn.Module, checkpoint_path: str, device: str):
     """Pretty-print summary of parameter tensors restored from *checkpoint_path*."""
-    state_dict = load_file(checkpoint_path, device=device)
+    if os.path.isdir(checkpoint_path):
+        # Load all sharded checkpoint files into a single state_dict
+        state_dict = {}
+        for filename in sorted(os.listdir(checkpoint_path)):
+            if filename.startswith("model-") and filename.endswith(".safetensors"):
+                shard_path = os.path.join(checkpoint_path, filename)
+                shard_dict = load_file(shard_path, device=device)
+                state_dict.update(shard_dict)
+    else:
+        state_dict = load_file(checkpoint_path, device=device)
     loaded_layers = []
     skipped_layers = []
 

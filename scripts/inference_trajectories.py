@@ -2,6 +2,7 @@ import json
 import numpy as np
 import torch
 import time
+import gc
 from tqdm import tqdm
 from transformers import DynamicCache
 from icae.configs import get_config
@@ -17,7 +18,7 @@ def load_conversation_trajectories(path):
 
 
 @torch.no_grad()
-def _run(model, trajs, device, max_len):
+def _run(model, trajs, device):
     bleu_scores, accuracy_scores = [], []
     compress_times_all = []
     gen_times_all = []
@@ -67,6 +68,12 @@ def _run(model, trajs, device, max_len):
             print(f"-"*5 + f"Starting turn {i}" + "-"*5)
             if i + 1 >= len(msgs):
                 continue
+            if len(conversation_tokens) > 32_768:
+                print(f"Skipping trajectory {i} - conversation is {len(conversation_tokens)} tokens long")
+                del accumulated_compressed_memory, conversation_tokens
+                gc.collect()
+                torch.cuda.empty_cache()
+                break
                 
             curr_msg = msgs[i]
             next_msg = msgs[i + 1]
@@ -87,8 +94,7 @@ def _run(model, trajs, device, max_len):
             total_compressed_tokens += len(assistant_tokens)
 
 
-            ### TODO: maybe decide differently? Now we just do not compress if the user message is shorter than the memory size
-            if len(user_tokens) >= model.mem_size:
+            if model.model_args.do_compress and len(user_tokens) >= model.mem_size:
                 # Compress user message and append it to the accumulated compressed memory
                 start_time = time.time()
                 user_tokens_compressed = model._compress(torch.LongTensor(user_tokens).unsqueeze(0).to(device))
@@ -119,9 +125,6 @@ def _run(model, trajs, device, max_len):
             prompt_answer_ids = example["prompt_answer_ids"]
             labels_tensor = example["labels"]
             prompt_len = (labels_tensor == -100).sum().item()
-
-            prompt_ids = torch.LongTensor(prompt_answer_ids[:prompt_len]).unsqueeze(0).to(device)
-            ### answer_ids = torch.LongTensor(prompt_answer_ids[prompt_len:]).unsqueeze(0)
             
             conversation_tokens = prompt_answer_ids.squeeze(0).tolist()           # this sequence is updated (appended) internally for the next turn
 
@@ -216,7 +219,7 @@ def main():
     trajectories = trajectories[155:]  ### TODO: this is last half that is used for testing
     ### TODO: it is here just to be safe
     with torch.inference_mode():
-        bleu_scores, accuracy_scores, trajectory_metrics = _run(model, trajectories, device, data_args.max_out_length)
+        bleu_scores, accuracy_scores, trajectory_metrics = _run(model, trajectories, device)
     
     # Calculate overall metrics across all trajectories
     mean_bleu = float(np.mean(bleu_scores)) if bleu_scores else 0.0

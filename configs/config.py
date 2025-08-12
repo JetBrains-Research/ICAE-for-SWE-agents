@@ -14,6 +14,9 @@ class ModelArguments:
     train: bool = field(default=None)
     lora_target_modules: List[str] = field(default=None)
     use_position_identifiers: bool = field(default=None)
+    do_compress: bool = field(default=None)
+    freeze_encoder: bool = field(default=None)
+    freeze_decoder: bool = field(default=None)
 
 @dataclass
 class DataArguments:
@@ -42,6 +45,7 @@ class TrainingArguments(transformers.TrainingArguments):
     eval_ae_num_samples: int = field(default=None)
     model_max_length: int = field(default=None)
     num_training_steps: int = field(default=None)
+    gradient_checkpointing: bool = field(default=None)
 
 @dataclass
 class InferenceArguments:

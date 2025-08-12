@@ -6,9 +6,10 @@ from typing import List, Optional
 import torch
 import torch.nn as nn
 from peft import get_peft_model, LoraConfig
-from safetensors.torch import load_file
 from transformers import AutoModelForCausalLM, AutoTokenizer
-
+from pathlib import Path
+from transformers.modeling_utils import load_sharded_checkpoint
+from safetensors.torch import load_file
 from icae.configs.templates import TemplateManager
 from icae.models.model_utils import freeze_model, print_trainable_parameters, print_loaded_layers
 
@@ -51,6 +52,8 @@ class ICAE(nn.Module):
             self.model_name, use_fast=False, trust_remote_code=True
         )
 
+        self.restore = self.training_args.restore_from
+
         # Independent decoder for gradient-checkpointing during training
         if self.training_args.train:
             self.decoder = AutoModelForCausalLM.from_pretrained(
@@ -58,6 +61,7 @@ class ICAE(nn.Module):
                 torch_dtype=self.target_dtype,
                 attn_implementation="flash_attention_2"
             )
+            # self.decoder = get_peft_model(self.decoder, lora_config)
 
         # Model/sequence-level constants
         self.vocab_size = self.icae.config.vocab_size
@@ -96,18 +100,19 @@ class ICAE(nn.Module):
 
         if self.training_args.train:
             self._init_training_components()
-            self.icae.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
-            self.decoder.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
 
     # ------------------------------------------------------------------
     # Helper methods
     # ------------------------------------------------------------------
     def _init_training_components(self):
-        print("Freezing the decoder...")
-        freeze_model(self.decoder)
-        # freeze_model(self.icae)
-        self.decoder.eval()
-        self.icae.eval()
+        if self.model_args.freeze_encoder:
+            print("Freezing the encoder...")
+            freeze_model(self.icae)
+            self.icae.eval()
+        if self.model_args.freeze_decoder:
+            print("Freezing the decoder...")
+            freeze_model(self.decoder)
+            self.decoder.eval()
 
         self.icae = self.icae.to(device=device, dtype=self.target_dtype)
         self.decoder = self.decoder.to(device=device, dtype=self.target_dtype)
@@ -115,13 +120,18 @@ class ICAE(nn.Module):
 
         print_trainable_parameters(self)
 
-        # Optionally restore from a provided checkpoint
-        if self.training_args.restore_from:
-            print(f"Loading from the pretrained checkpoint: {self.training_args.restore_from}...")
-            state_dict = load_file(self.training_args.restore_from)
+        
+        ### TODO: if restore is a directory, load the DECODER from it only!
+        if self.restore and Path(self.restore).is_dir():
+            # folder with e.g. model-00001-of-0000x.safetensors + model.safetensors.index.json
+            load_sharded_checkpoint(self.decoder, self.restore, strict=True, prefer_safe=True)
+            print_loaded_layers(self.decoder, self.restore, str(device))
+            print(f"Finished loading from {self.restore}")
+        elif self.restore:
+            state_dict = load_file(self.restore)
             self.load_state_dict(state_dict, strict=False)
-            print_loaded_layers(self, self.training_args.restore_from, str(device))
-            print(f"Finished loading from {self.training_args.restore_from}")
+            print_loaded_layers(self, self.restore, str(device))
+            print(f"Finished loading from {self.restore}")
         else:
             print("No checkpoint provided. Initializing ICAE from scratch.")
 
