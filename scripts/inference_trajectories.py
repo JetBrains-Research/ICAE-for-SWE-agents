@@ -126,7 +126,13 @@ def _run(model, trajs, device):
             labels_tensor = example["labels"]
             prompt_len = (labels_tensor == -100).sum().item()
             
-            conversation_tokens = prompt_answer_ids.squeeze(0).tolist()           # this sequence is updated (appended) internally for the next turn
+            pa_ids = prompt_answer_ids.squeeze(0).tolist()
+            lbls = labels_tensor.tolist()
+            prompt_len = sum(x == -100 for x in lbls)
+            prompt_ids = pa_ids[:prompt_len]
+            answer_ids = pa_ids[prompt_len:]
+            k = len(tm.template_tokens['assistant_prefix']) - len(tm.template_tokens['user_prefix'])
+            conversation_tokens = prompt_ids[:-k] + answer_ids
 
             prompt_answer_ids_tensor = torch.LongTensor(prompt_answer_ids).unsqueeze(0).to(device)
             labels_tensor_unsqueezed = torch.LongTensor(labels_tensor).unsqueeze(0).to(device)

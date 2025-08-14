@@ -174,7 +174,13 @@ class ICAETrajectoryTrainer(ICAETrainer):
                     # 5. update context for the next turn
                     trajectory_bleus.append(bleu_score)
                     trajectory_accuracies.append(accuracy_score)
-                    conversation_tokens = prompt_answer.squeeze(0).tolist()
+                    pa_ids = prompt_answer.squeeze(0).tolist()
+                    lbls = labels.squeeze(0).tolist()
+                    prompt_len = sum(x == -100 for x in lbls)
+                    prompt_ids = pa_ids[:prompt_len]
+                    answer_ids = pa_ids[prompt_len:]
+                    k = len(template_mgr.template_tokens['assistant_prefix']) - len(template_mgr.template_tokens['user_prefix'])
+                    conversation_tokens = prompt_ids[:-k] + answer_ids
                     global_step += 1
 
                     # GPU Memory Profiling
