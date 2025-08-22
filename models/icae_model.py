@@ -61,7 +61,8 @@ class ICAE(nn.Module):
                 torch_dtype=self.target_dtype,
                 attn_implementation="flash_attention_2"
             )
-            # self.decoder = get_peft_model(self.decoder, lora_config)
+            if not self.model_args.freeze_decoder:
+                self.decoder = get_peft_model(self.decoder, lora_config)
 
         # Model/sequence-level constants
         self.vocab_size = self.icae.config.vocab_size

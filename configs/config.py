@@ -46,6 +46,7 @@ class TrainingArguments(transformers.TrainingArguments):
     model_max_length: int = field(default=None)
     num_training_steps: int = field(default=None)
     gradient_checkpointing: bool = field(default=None)
+    save_decoder: Optional[bool] = field(default=None)
 
 @dataclass
 class InferenceArguments:
@@ -74,6 +75,8 @@ def get_config():
     model_args = ModelArguments(**{k: v for k, v in config_dict.items() if k in [f.name for f in dataclasses.fields(ModelArguments)]})
     data_args = DataArguments(**{k: v for k, v in config_dict.items() if k in [f.name for f in dataclasses.fields(DataArguments)]})
     inference_args = InferenceArguments(**{k: v for k, v in config_dict.items() if k in [f.name for f in dataclasses.fields(InferenceArguments)]})
+
+    training_args.save_decoder = not model_args.freeze_decoder
 
     return model_args, data_args, training_args, inference_args
 

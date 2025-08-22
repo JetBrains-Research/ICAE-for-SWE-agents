@@ -80,16 +80,21 @@ class ICAETrainer(Trainer):
 
     def _save(self, output_dir: Optional[str] = None, state_dict=None):
         """
-        Custom save method to exclude the frozen decoder from checkpoints.
-        This prevents safetensors from erroring on tied weights.
+        Custom save method to optionally exclude the decoder from checkpoints.
+        By default, excludes the decoder only if it appears to be frozen.
         """
         if state_dict is None:
             state_dict = self.model.state_dict()
 
-        # Do not save the decoder since it is not trained
-        keys_to_remove = [k for k in state_dict if k.startswith('decoder.')]
-        for k in keys_to_remove:
-            del state_dict[k]
+        # Decide whether to save decoder weights
+        save_decoder_flag = getattr(self.args, "save_decoder")
+        save_decoder = bool(save_decoder_flag) if save_decoder_flag is not None else False 
+
+        if not save_decoder:
+            # Exclude decoder weights
+            keys_to_remove = [k for k in state_dict if k.startswith('decoder.')]
+            for k in keys_to_remove:
+                del state_dict[k]
 
         # Handle tied weights within the main ICAE model for safetensors
         if '4B' in self.model.model_args.model_name_or_path or '3B' in self.model.model_args.model_name_or_path:

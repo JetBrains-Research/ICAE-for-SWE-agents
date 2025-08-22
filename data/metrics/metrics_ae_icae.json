@@ -124,4 +124,52 @@
     "restore_from": "icae/data/checkpoints/pretrain/pretrain_2607_1024_4_1B/checkpoint-24000/model.safetensors",
     "mean_bleu": 0.9273949821620988,
     "num_samples": 100
+}{
+    "task": "ae",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/slinko/projects/LLaMA-Factory/saves/Qwen3-8B/full/smith_qwen3-8b-no-think-full-lr5e-6-warmup100-adamw-torch____ft_xml_0p9/checkpoint-1767/",
+    "ckpt_name": "12k",
+    "mean_bleu": 0.7754933169065663,
+    "num_samples": 100
+}{
+    "task": "ae",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/slinko/projects/LLaMA-Factory/saves/Qwen3-8B/full/smith_qwen3-8b-no-think-full-lr5e-6-warmup100-adamw-torch____ft_xml_0p9/checkpoint-1767/",
+    "ckpt_name": "15k",
+    "mean_bleu": 0.8183482474969476,
+    "num_samples": 100
+}{
+    "task": "ae",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/slinko/projects/LLaMA-Factory/saves/Qwen3-8B/full/smith_qwen3-8b-no-think-full-lr5e-6-warmup100-adamw-torch____ft_xml_0p9/checkpoint-1767/",
+    "mean_bleu": 0.8672203684264472,
+    "ckpt_name": "18k",
+    "num_samples": 100
+}{
+    "task": "ae",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/slinko/projects/LLaMA-Factory/saves/Qwen3-8B/full/smith_qwen3-8b-no-think-full-lr5e-6-warmup100-adamw-torch____ft_xml_0p9/checkpoint-1767/",
+    "mean_bleu": 0.8171596659122413,
+    "ckpt_name": "21k",
+    "num_samples": 100
+}{
+    "task": "ae",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/slinko/projects/LLaMA-Factory/saves/Qwen3-8B/full/smith_qwen3-8b-no-think-full-lr5e-6-warmup100-adamw-torch____ft_xml_0p9/checkpoint-1767/",
+    "ckpt_name": "24k",
+    "mean_bleu": 0.8092050991663575,
+    "num_samples": 100
+}{
+    "task": "ae",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/slinko/projects/LLaMA-Factory/saves/Qwen3-8B/full/smith_qwen3-8b-no-think-full-lr5e-6-warmup100-adamw-torch____ft_xml_0p9/checkpoint-1767/",
+    "ckpt_name": "25100",
+    "mean_bleu": 0.8143596845544901,
+    "num_samples": 100
 }

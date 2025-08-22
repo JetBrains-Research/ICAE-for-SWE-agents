@@ -1,0 +1,71 @@
+### Model Arguments
+model_name_or_path: "Qwen/Qwen3-8B" # "mistralai/Mistral-7B-Instruct-v0.2" OR "Qwen/Qwen3-8B"
+model_type: "icae" # "icae" # "llm"
+lora_r: 128 # 512 OR 128
+lora_dropout: 0.05
+train: True # Needed for ICAE decoder
+lora_target_modules: ["q_proj", "v_proj"]
+use_position_identifiers: True
+do_compress: True # this is for inference in reality
+freeze_encoder: True
+freeze_decoder: True
+
+
+### Data Arguments
+max_train_samples: 10000
+max_eval_samples: 500
+max_out_length: 250       # 15 tokens is mostly enough for squad, now it is same as real answer length for inference
+# Pretrain Data Arguments
+dataset_repo: "DKYoon/SlimPajama-6B"
+token_num: 1000000000 # 1B tokens
+min_len: 512
+train_output_file: "icae/data/datasets/train_data.pt"
+eval_output_file: "icae/data/datasets/eval_data.pt"
+long_text_cache: "icae/data/datasets/long_texts.json"
+eval_size: 500
+
+
+### Training Arguments -- This depends on the pretraining or finetuning
+output_dir: ""
+overwrite_output_dir: False
+per_device_train_batch_size: 1
+per_device_eval_batch_size: 1
+gradient_accumulation_steps: 1
+learning_rate: 0.00005  #0.00005 is 5e-5 while 0.0001 is 1e-4
+max_grad_norm: 2.0
+warmup_steps: 300
+max_steps: -1
+num_train_epochs: 1 # 100
+num_training_steps: 150000
+logging_steps: 1000
+train: True
+do_train: True
+do_eval: True
+eval_strategy: "steps"
+eval_steps: 1000
+eval_ae_num_samples: 10
+save_steps: 5000
+bf16: True
+fp16: False
+optim: "adamw_torch"
+model_max_length: 4096  # 4096 OR 5120
+fixed_mem_size: 256
+mean_compression_rate: 4
+min_tokens_for_lm: 64
+leave_tokens_for_lm: 0
+lm_ratio: 0.0
+add_special_token_for_lm: False
+restore_from: "/mnt/shared-fs/gelvan/icae/data/checkpoints/finetune/swebench-full-256-2008-ENCDEC-lr4-75k-fixthink/checkpoint-54128/model.safetensors"
+dataloader_num_workers: 0
+dataloader_pin_memory: False
+dataloader_drop_last: True
+seed: 42
+gradient_checkpointing: False
+
+
+### Inference Arguments
+task: "ae" # "ae" or "lm"
+restore_from: "/mnt/shared-fs/gelvan/icae/data/checkpoints/finetune/swebench-full-256-2008-ENCDEC-lr4-75k-fixthink/checkpoint-54128/model.safetensors"
+num_samples: 100
+use_cpu: False
+use_position_identifiers: True

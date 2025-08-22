@@ -62,6 +62,10 @@ def _run(model, trajs, device):
             add_generation_prompt=False,
             enable_thinking=False,
         )
+        # cut think-think tokens from history
+        content_len = len(model.tokenizer(content, truncation=False)['input_ids']) + 2
+        k = len(tm.template_tokens['assistant_prefix']) - len(tm.template_tokens['user_prefix'])
+        conversation_tokens = conversation_tokens[:-content_len-k] + conversation_tokens[-content_len:]
 
         # Step 2: Process remaining user-assistant pairs
         for i in range(3, len(msgs) - 1, 2):
@@ -131,8 +135,10 @@ def _run(model, trajs, device):
             prompt_len = sum(x == -100 for x in lbls)
             prompt_ids = pa_ids[:prompt_len]
             answer_ids = pa_ids[prompt_len:]
+            
+            # important cut of think tokens in historty
             k = len(tm.template_tokens['assistant_prefix']) - len(tm.template_tokens['user_prefix'])
-            conversation_tokens = prompt_ids[:-k] + answer_ids
+            conversation_tokens = prompt_ids[:-k] + answer_ids  ### prompt_ids[:-k]
 
             prompt_answer_ids_tensor = torch.LongTensor(prompt_answer_ids).unsqueeze(0).to(device)
             labels_tensor_unsqueezed = torch.LongTensor(labels_tensor).unsqueeze(0).to(device)

@@ -88,6 +88,10 @@ class ICAETrajectoryTrainer(ICAETrainer):
                 )
                 accumulated_compressed_memory = None
                 template_mgr = TemplateManager(self.model.tokenizer)
+                # cut think-think tokens from history
+                content_len = len(self.model.tokenizer(msgs[2]["content"], truncation=False)['input_ids']) + 2
+                k = len(template_mgr.template_tokens['assistant_prefix']) - len(template_mgr.template_tokens['user_prefix'])
+                conversation_tokens = conversation_tokens[:-content_len-k] + conversation_tokens[-content_len:]
 
                 # --- iterate over remaining user–assistant pairs ---
                 for idx in range(3, len(msgs) - 1, 2):
@@ -98,7 +102,7 @@ class ICAETrajectoryTrainer(ICAETrainer):
                     # 1. tokenise assistant reply
                     asst_tokens = self.model.tokenizer(asst_msg["content"], truncation=False)["input_ids"]
                     asst_tokens = template_mgr.create_answer_with_suffix(asst_tokens)
-                    if len(conversation_tokens) > 32_768:
+                    if len(conversation_tokens) > 32_768 * 0.8:
                         print(f"Skipping trajectory {i} - conversation is {len(conversation_tokens)} tokens long")
                         del accumulated_compressed_memory, conversation_tokens
                         gc.collect()
@@ -226,7 +230,7 @@ class ICAETrajectoryTrainer(ICAETrainer):
 
                 # Checkpointing
                 save_every_n_trajectories = 500
-                if trajectories_done_counter > 0 and trajectories_done_counter % save_every_n_trajectories == 0:
+                if trajectories_done_counter % save_every_n_trajectories == 0 and trajectories_done_counter > 0:
                     print(f"Saving checkpoint after {trajectories_done_counter} trajectories at step {global_step}...")
                     self.state.global_step = global_step
                     self._save_checkpoint(model=self.model, trial=trial)
