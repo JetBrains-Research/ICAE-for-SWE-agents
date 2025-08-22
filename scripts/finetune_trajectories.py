@@ -102,7 +102,7 @@ class ICAETrajectoryTrainer(ICAETrainer):
                     # 1. tokenise assistant reply
                     asst_tokens = self.model.tokenizer(asst_msg["content"], truncation=False)["input_ids"]
                     asst_tokens = template_mgr.create_answer_with_suffix(asst_tokens)
-                    if len(conversation_tokens) > 32_768 * 0.8:
+                    if len(conversation_tokens) > 32_768:
                         print(f"Skipping trajectory {i} - conversation is {len(conversation_tokens)} tokens long")
                         del accumulated_compressed_memory, conversation_tokens
                         gc.collect()
