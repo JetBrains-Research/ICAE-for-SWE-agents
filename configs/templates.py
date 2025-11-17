@@ -57,6 +57,16 @@ class TemplateManager:
     def create_squad_prompt(self, memory_tokens: List[int], question_tokens: List[int]) -> List[int]:
         """Pattern: <user_prefix> + memory_tokens + question + <suffix> + <assistant_prefix>"""
         return self._apply_chat_template(memory_tokens + question_tokens)
+    
+    def create_repoqa_prompt(self, prefix_tokens: List[int], memory_tokens: List[int], suffix_tokens: List[int]) -> List[int]:
+        """Pattern: <user_prefix> + prefix + memory_tokens + suffix + <suffix> + <assistant_prefix>
+        
+        For RepoQA (order: instruction + code_context + description + instruction):
+        - prefix_tokens: first instruction
+        - memory_tokens: compressed code_context
+        - suffix_tokens: description + second instruction
+        """
+        return self._apply_chat_template(prefix_tokens + memory_tokens + suffix_tokens)
 
     def create_encoder_input(self, content_tokens: List[int]) -> List[int]:
         """Pattern: <user_prefix> + content + <suffix> + <assistant_prefix>"""
@@ -64,7 +74,7 @@ class TemplateManager:
     
     def create_decoder_prompt_ae(self, memory_tokens: List[int], ae_token_id: int) -> List[int]:
         """Pattern: <user_prefix> + memory_tokens + [ae_token] + <suffix> + <assistant_prefix>"""
-        return self._apply_chat_template(memory_tokens + [ae_token_id])
+        return self._apply_chat_template(memory_tokens)
     
     def create_decoder_prompt_lm(self, memory_tokens: List[int]) -> List[int]:
         """Pattern: <user_prefix> + memory_tokens + <suffix> + <assistant_prefix>"""

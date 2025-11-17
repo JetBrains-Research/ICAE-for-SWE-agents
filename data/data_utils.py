@@ -18,12 +18,16 @@ __all__ = [
     # Fine-tuning functions - general
     "format_squad",
     "load_and_process_squad",
+    "format_repoqa",
+    "load_and_process_repoqa",
     
     # Fine-tuning functions - model specific
     "tokenize_qwen_icae_ft",
     "tokenize_mistral_icae_ft",
     "tokenize_mistral_llm_ft", 
     "tokenize_qwen_llm_ft",
+    "tokenize_qwen_icae_ft_repoqa",
+    "tokenize_qwen_llm_ft_repoqa",
     
     # Utility
     "truncate_cache",
@@ -31,6 +35,7 @@ __all__ = [
     "normalize_text",
     "compute_exact_match",
     "compute_f1",
+    "compute_repoqa_similarity",
     "DataCollatorForDynamicPadding"
 ]
 
@@ -63,6 +68,13 @@ def create_icae_example(input_tokens, lm_target_tokens, task_type, model, text_t
         prompt_content = template_manager.create_squad_prompt(memory_token_placeholders, text_tokens)
         answer_ids = lm_target_tokens  # The full answer is the target
         labels = [-100] * len(prompt_content) + answer_ids
+    elif task_type == "repoqa":  # RepoQA fine-tuning
+        # text_tokens should be a tuple: (prefix_tokens, suffix_tokens)
+        # Order: instruction + code_context + description + instruction
+        prefix_tokens, suffix_tokens = text_tokens
+        prompt_content = template_manager.create_repoqa_prompt(prefix_tokens, memory_token_placeholders, suffix_tokens)
+        answer_ids = lm_target_tokens  # The target function name
+        labels = [-100] * len(prompt_content) + answer_ids
     elif task_type == "ae":  # autoencoding
         # For AE, we only care about reconstructing the input_tokens.
         a = input_tokens
@@ -90,29 +102,32 @@ def create_icae_example(input_tokens, lm_target_tokens, task_type, model, text_t
     }
 
     # Print example details
-    # print("\n=== Example Details ===")
-    # print(f"Task type: {task_type}")
-    # print(f"Input length: {len(encoder_input_ids)}")
-    # print(f"Prompt+Answer length: {len(prompt_answer_ids)}")
-    # print(f"Labels length: {len(labels)}")
+    '''print("\n=== Example Details ===")
+    print(f"Task type: {task_type}")
+    print(f"Input length: {len(encoder_input_ids)}")
+    print(f"Prompt+Answer length: {len(prompt_answer_ids)}")
+    print(f"Labels length: {len(labels)}")
     
-    #print("\nInput text:")
-    #print(template_manager._safe_decode_with_mem_tokens(encoder_input_ids))
-    #print("-" * 10 + 'start of prompt+answer text' + '-'*10)
-    #print(template_manager._safe_decode_with_mem_tokens(prompt_answer_ids))
-    #print('-'*10 + 'end of prompt+answer text' + '-'*10)
-    #print("\nLabels:")
-    #non_ignore_positions = [i for i, x in enumerate(labels) if x != -100]
-    #print(f"{non_ignore_positions[0]}...{non_ignore_positions[-1]} are labels out of {len(labels)-1}")
-    '''if len(non_ignore_positions) > 1000:
+    print("\nInput text:")
+    print(template_manager._safe_decode_with_mem_tokens(encoder_input_ids))
+    print("-" * 10 + 'start of prompt+answer text' + '-'*10)
+    print(template_manager._safe_decode_with_mem_tokens(prompt_answer_ids))
+    print('-'*10 + 'end of prompt+answer text' + '-'*10)
+    print("\nLabels:")
+    non_ignore_positions = [i for i, x in enumerate(labels) if x != -100]
+    print(f"{non_ignore_positions[0]}...{non_ignore_positions[-1]} are labels out of {len(labels)-1}")
+    if len(non_ignore_positions) > 1000:
         print(f"--------------------------------")
         print("Very long generation! Here are first 100 and last 100 tokens of prompt_answer_ids at non-ignore positions:")
         first_100 = [prompt_answer_ids[i] for i in non_ignore_positions[:100]]
         last_100 = [prompt_answer_ids[i] for i in non_ignore_positions[-100:]]
         print("First 100:", template_manager._safe_decode_with_mem_tokens(first_100))
         print("Last 100:", template_manager._safe_decode_with_mem_tokens(last_100)) 
-        print(f"--------------------------------")'''
-    # print("=====================\n")
+        print(f"--------------------------------")
+    print("=====================\n")
+    print("Sleeping for 10 seconds to see the example...")
+    time.sleep(10)'''
+
 
     return example
 
@@ -132,7 +147,7 @@ def format_squad(examples):
 def load_and_process_squad(num_samples: int = None, include_answers: bool = False, split: str = "validation"):
     """Load the SQuAD dataset and return a processed ``pandas.DataFrame``."""
     
-    dataset = load_dataset("rajpurkar/squad", split=split)
+    dataset = load_dataset("squad", split=split)
     formatted = dataset.map(format_squad, batched=True, remove_columns=dataset.column_names, load_from_cache_file=False)
     df = pd.DataFrame(formatted)
 
@@ -146,6 +161,123 @@ def load_and_process_squad(num_samples: int = None, include_answers: bool = Fals
         df = df[["input"]]
         if num_samples is not None:
             df = df.sample(n=num_samples, random_state=42)
+    return df
+
+
+def format_repoqa(examples):
+    """Format repoqa dataset examples.
+    
+    Each example has fields that should be concatenated in template order.
+    Only 'code_context' should be compressed; other fields are text.
+    Template: "instruction\ncode_context\ndescription\ninstruction"
+    
+    We split into:
+    - prefix: first instruction (goes before compressed code_context)
+    - suffix: description + second instruction (goes after compressed code_context)
+    
+    The answer is the actual needle function code extracted using CodeLlama tokenizer.
+    """
+    from transformers import AutoTokenizer
+    
+    # Use CodeLlama tokenizer for extraction (same as repoqa)
+    codellama_tokenizer = AutoTokenizer.from_pretrained("codellama/CodeLlama-7b-Instruct-hf")
+    
+    prefixes = []
+    suffixes = []
+    answers = []
+    
+    for i in range(len(examples["instruction"])):
+        prefix = examples["instruction"][i]
+        suffix = examples["description"][i] + examples["instruction"][i]
+        prefixes.append(prefix)
+        suffixes.append(suffix)
+        
+        # Extract the needle function code using CodeLlama tokenizer (exact same as repoqa)
+        code_context = examples["code_context"][i]
+        needle_start = examples["needle_token_start"][i]
+        needle_end = examples["needle_token_end"][i]
+        
+        codellama_tokens = codellama_tokenizer.tokenize(code_context)
+        needle_tokens = codellama_tokens[needle_start:needle_end]
+        needle_text = codellama_tokenizer.convert_tokens_to_string(needle_tokens)
+        
+        answers.append(needle_text)
+    
+    return {
+        "input": examples["code_context"],  # This will be compressed
+        "prefix": prefixes,  # First instruction
+        "suffix": suffixes,  # description + second instruction
+        "answer": answers,  # Actual needle function code
+        "name": examples["name"],  # Keep name for reference
+        "language": examples["language"],
+        "repo": examples["repo"],
+        "position_ratio": examples["position_ratio"],
+        "needle_token_start": examples["needle_token_start"],
+        "needle_token_end": examples["needle_token_end"],
+    }
+
+
+def load_and_process_repoqa(cache_file_path: str, num_samples: int = None, include_answers: bool = True):
+    """Load the repoqa dataset from cache file and return a processed ``pandas.DataFrame``."""
+    import json
+    from transformers import AutoTokenizer
+    
+    # Use CodeLlama tokenizer for extraction (same as repoqa)
+    codellama_tokenizer = AutoTokenizer.from_pretrained("codellama/CodeLlama-7b-Instruct-hf")
+    
+    tasks = []
+    with open(cache_file_path, 'r') as f:
+        for line in f:
+            data = json.loads(line)
+            data.pop('cache_id', None)  # Remove cache_id if present
+            tasks.append(data)
+    
+    # Format for our pipeline
+    # Template order: instruction + code_context + description + instruction
+    formatted_tasks = []
+    for task in tasks:
+        template_keys = task["template"].split("\n")
+        
+        # Split into prefix (before code_context) and suffix (after code_context)
+        prefix = ""
+        suffix = ""
+        code_context_seen = False
+        
+        for key in template_keys:
+            if key == "code_context":
+                code_context_seen = True
+            elif not code_context_seen:
+                prefix += task[key]
+            else:
+                suffix += task[key]
+        
+        # Extract the needle function code using CodeLlama tokenizer (exact same as repoqa)
+        code_context = task["code_context"]
+        needle_start = task["needle_token_start"]
+        needle_end = task["needle_token_end"]
+        
+        codellama_tokens = codellama_tokenizer.tokenize(code_context)
+        needle_tokens = codellama_tokens[needle_start:needle_end]
+        needle_text = codellama_tokenizer.convert_tokens_to_string(needle_tokens)
+        
+        formatted_tasks.append({
+            "input": code_context,  # To be compressed
+            "prefix": prefix,  # First instruction
+            "suffix": suffix,  # description + second instruction
+            "answer": needle_text,  # Actual needle function code
+            "name": task["name"],  # Keep name for reference
+            "language": task["language"],
+            "repo": task["repo"],
+            "position_ratio": task["position_ratio"],
+            "needle_token_start": needle_start,
+            "needle_token_end": needle_end,
+        })
+    
+    df = pd.DataFrame(formatted_tasks)
+    
+    if num_samples is not None:
+        df = df.sample(n=min(num_samples, len(df)), random_state=42)
+    
     return df
 
 #######################
@@ -271,6 +403,85 @@ def tokenize_qwen_llm_ft(examples, tokenizer, max_length):
         "labels": labels_list,
     }
 
+
+### REPOQA - ICAE
+def tokenize_qwen_icae_ft_repoqa(examples, model, max_length=16384):
+    """Tokenizes a RepoQA example for fine-tuning the ICAE model.
+    
+    Compress only code_context (input), leave other fields as text.
+    Order: instruction + code_context + description + instruction
+    
+    The needle function code is already extracted in format_repoqa/load_and_process_repoqa.
+    """
+    context = examples['input']  # code_context (to be compressed)
+    prefix_text = examples['prefix']  # First instruction
+    suffix_text = examples['suffix']  # description + second instruction
+    answer_text = examples['answer']  # Actual needle function code (already extracted)
+
+    # 1. Prepare tokens for code_context, prefix, and suffix
+    context_tokens = model.tokenizer(context, truncation=True, max_length=max_length - 500)['input_ids']
+    prefix_tokens = model.tokenizer(prefix_text, truncation=False)['input_ids']
+    suffix_tokens = model.tokenizer(suffix_text, truncation=False)['input_ids']
+
+    # 2. Tokenize the answer (needle function code) with Qwen
+    answer_tokens = model.tokenizer(answer_text, truncation=True, max_length=500, add_special_tokens=False)['input_ids']
+    answer_tokens = answer_tokens + [model.tokenizer.eos_token_id]
+
+    # 3. Use the unified function to create the example
+    return create_icae_example(
+        input_tokens=context_tokens,
+        lm_target_tokens=answer_tokens,
+        task_type="repoqa",
+        model=model,
+        text_tokens=(prefix_tokens, suffix_tokens)
+    )
+
+
+### REPOQA - LLM
+def tokenize_qwen_llm_ft_repoqa(examples, tokenizer, max_length=16384):
+    """Tokenizes examples for Qwen LLM RepoQA fine-tuning.
+    
+    Order: instruction + code_context + description + instruction
+    
+    The needle function code is already extracted in format_repoqa/load_and_process_repoqa.
+    """
+    input_ids_list = []
+    labels_list = []
+    template_manager = TemplateManager(tokenizer)
+
+    for i in range(len(examples["prefix"])):
+        prefix = examples['prefix'][i]  # First instruction
+        code_context = examples['input'][i]  # code_context
+        suffix = examples['suffix'][i]  # description + second instruction
+        answer_text = examples['answer'][i]  # Actual needle function code (already extracted)
+
+        # Build prompt in correct order: prefix + code_context + suffix
+        full_prompt = prefix + code_context + suffix
+        
+        # First tokenize the prompt part
+        messages_prompt = [{"role": "user", "content": full_prompt}]
+        prompt_chat = tokenizer.apply_chat_template(messages_prompt, tokenize=False, add_generation_prompt=True, enable_thinking=False)
+        tokenized_prompt = tokenizer(prompt_chat, max_length=max_length, truncation=False, padding=False, return_attention_mask=False)
+        prompt_ids = tokenized_prompt['input_ids']
+
+        # Tokenize the answer part with Qwen
+        tokenized_answer = tokenizer(answer_text, truncation=True, max_length=1000, padding=False, return_attention_mask=False, add_special_tokens=False)
+        answer_ids = template_manager.create_answer_with_suffix(tokenized_answer['input_ids'])
+
+        # Combine them
+        input_ids = prompt_ids + answer_ids
+        
+        # Create labels with -100 for prompt
+        labels = [-100] * len(prompt_ids) + answer_ids
+        
+        input_ids_list.append(input_ids)
+        labels_list.append(labels)
+    
+    return {
+        "input_ids": input_ids_list,
+        "labels": labels_list,
+    }
+
 #######################
 # UTILITY
 #######################
@@ -351,7 +562,24 @@ def compute_f1(prediction: str, truth: str) -> float:
 
     precision = len(common) / len(pred_tokens)
     recall = len(common) / len(truth_tokens)
-    return 2 * (precision * recall) / (precision + recall) 
+    return 2 * (precision * recall) / (precision + recall)
+
+
+def compute_repoqa_similarity(prediction: str, ground_truth: str) -> float:
+    """Compute function similarity for RepoQA using BLEU score with smoothing.
+    
+    Returns a similarity score between 0 and 1.
+    """
+    from nltk.translate.bleu_score import SmoothingFunction
+    
+    candidate_tokens = [item for item in re.split(r"\s+", prediction.strip())]
+    reference_tokens = [item for item in re.split(r"\s+", ground_truth.strip())]
+    
+    chencherry = SmoothingFunction()
+    
+    return sentence_bleu(
+        [reference_tokens], candidate_tokens, smoothing_function=chencherry.method4
+    ) 
 
 
 class DataCollatorForDynamicPadding:

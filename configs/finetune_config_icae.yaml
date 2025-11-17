@@ -26,25 +26,25 @@ eval_size: 500
 
 
 ### Training Arguments -- This depends on the pretraining or finetuning
-output_dir: "icae/data/checkpoints/finetune/swebench-full-256-1208-lr8"
+output_dir: "icae/data/checkpoints/finetune/repoqa-icae-0411-lr1e-4"
 overwrite_output_dir: False
 per_device_train_batch_size: 1
 per_device_eval_batch_size: 1
 gradient_accumulation_steps: 1
-learning_rate: 0.00008  #0.00005 is 5e-5 while 0.0001 is 1e-4
+learning_rate: 0.0001  #0.00005 is 5e-5 while 0.0001 is 1e-4
 max_grad_norm: 2.0
 warmup_steps: 300
 max_steps: -1
-num_train_epochs: 1 # 100
-num_training_steps: 150000
-logging_steps: 1000
+num_train_epochs: 5 # 100
+num_training_steps: 5000
+logging_steps: 10
 train: True
 do_train: True
 do_eval: True
 eval_strategy: "steps"
-eval_steps: 1000
-eval_ae_num_samples: 10
-save_steps: 5000
+eval_steps: 200
+eval_ae_num_samples: 100
+save_steps: 500
 bf16: True
 fp16: False
 optim: "adamw_torch"
@@ -66,6 +66,6 @@ gradient_checkpointing: True
 ### Inference Arguments
 task: "lm" # "ae" or "lm"
 restore_from: "icae/data/checkpoints/pretrain/pretrain_2607_1024_4_1B/checkpoint-12000/model.safetensors"
-num_samples: 1
+num_samples: 100
 use_cpu: False
 use_position_identifiers: True

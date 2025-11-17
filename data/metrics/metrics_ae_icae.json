@@ -172,4 +172,25 @@
     "ckpt_name": "25100",
     "mean_bleu": 0.8143596845544901,
     "num_samples": 100
+}{
+    "task": "ae",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/gelvan/icae/data/checkpoints/pretrain/pretrain_2607_1024_4_1B/checkpoint-21000/model.safetensors",
+    "mean_bleu": 0.6989406377026997,
+    "num_samples": 10
+}{
+    "task": "ae",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/gelvan/icae/data/checkpoints/pretrain/pretrain_2607_1024_4_1B/checkpoint-21000/model.safetensors",
+    "mean_bleu": 0.6989406377026997,
+    "num_samples": 10
+}{
+    "task": "ae",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/gelvan/icae/data/checkpoints/pretrain/pretrain_2607_1024_4_1B/checkpoint-21000/model.safetensors",
+    "mean_bleu": 0.9931513149685303,
+    "num_samples": 10
 }

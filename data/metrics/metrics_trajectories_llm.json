@@ -1,0 +1,69 @@
+{
+    "task": "trajectories",
+    "model_type": "llm",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "",
+    "dataset_path": "icae/trajectories/openai/swe-smith/smith_val_openai.jsonl",
+    "per_turn": {
+        "mean_bleu": 0.8817006495823165,
+        "mean_accuracy": 0.9095563869068964,
+        "mean_exact_match": 0.1205020920502092,
+        "mean_bleu_autoregressive": 0.5028360204003482,
+        "mean_accuracy_autoregressive": 0.1039560129068409,
+        "mean_exact_match_autoregressive": 0.11631799163179916,
+        "num_turns": 1195
+    },
+    "per_trajectory": {
+        "mean_bleu": 0.8730258572506908,
+        "mean_accuracy": 0.899957028482649,
+        "mean_exact_match": 0.09548933461623871,
+        "mean_bleu_autoregressive": 0.4807801200492267,
+        "mean_accuracy_autoregressive": 0.07382974364116279,
+        "mean_exact_match_autoregressive": 0.09052113111862345,
+        "mean_compression_time_s": 0.0,
+        "mean_forward_pass_time_s": 0.5063079366934123,
+        "mean_compression_rate": 1.0
+    },
+    "overall": {
+        "num_trajectories": 37,
+        "num_turns": 812,
+        "total_original_tokens": 592149,
+        "total_compressed_tokens": 592149,
+        "overall_compression_ratio": 1.0,
+        "tokens_saved": 0
+    }
+}{
+    "task": "trajectories",
+    "model_type": "llm",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/gelvan/igor-lora-qwen/",
+    "dataset_path": "icae/trajectories/openai/swe-smith/smith_val_openai.jsonl",
+    "per_turn": {
+        "mean_bleu": 0.8968967950395376,
+        "mean_accuracy": 0.9231894129472469,
+        "mean_exact_match": 0.15230125523012553,
+        "mean_bleu_autoregressive": 0.5619274255322061,
+        "mean_accuracy_autoregressive": 0.16181150731948452,
+        "mean_exact_match_autoregressive": 0.1514644351464435,
+        "num_turns": 1195
+    },
+    "per_trajectory": {
+        "mean_bleu": 0.8929634816999494,
+        "mean_accuracy": 0.9180133156983069,
+        "mean_exact_match": 0.1311250773774712,
+        "mean_bleu_autoregressive": 0.5528651709083712,
+        "mean_accuracy_autoregressive": 0.13534269220763062,
+        "mean_exact_match_autoregressive": 0.12882033651785169,
+        "mean_compression_time_s": 0.0,
+        "mean_forward_pass_time_s": 0.5094558512078082,
+        "mean_compression_rate": 1.0
+    },
+    "overall": {
+        "num_trajectories": 37,
+        "num_turns": 812,
+        "total_original_tokens": 592149,
+        "total_compressed_tokens": 592149,
+        "overall_compression_ratio": 1.0,
+        "tokens_saved": 0
+    }
+}

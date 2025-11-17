@@ -63,6 +63,8 @@ class SimpleLLM(nn.Module):
         self.llm.gradient_checkpointing_enable(
             gradient_checkpointing_kwargs=gradient_checkpointing_kwargs
         )
+        # Enable input gradients for LoRA + gradient checkpointing compatibility
+        self.llm.enable_input_require_grads()
 
 
     def forward(self, input_ids, attention_mask=None, labels=None, **kwargs):
@@ -70,6 +72,6 @@ class SimpleLLM(nn.Module):
             input_ids=input_ids,
             attention_mask=attention_mask,
             labels=labels,
-            use_cache=False,
+            use_cache=False
         )
         return {"loss": outputs.loss, "logits": outputs.logits}

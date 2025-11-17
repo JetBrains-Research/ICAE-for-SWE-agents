@@ -1,0 +1,19 @@
+{
+    "task": "lm",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/gelvan/icae/data/checkpoints/finetune/qwen_finetune_1207-icae-last/checkpoint-15000/model.safetensors",
+    "mean_em": 0.626,
+    "mean_f1": 0.7977403245017797,
+    "mean_bleu": 0.7270712442417141,
+    "num_samples": 500
+}{
+    "task": "lm",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/gelvan/icae/data/checkpoints/pretrain/pretrain_1207/checkpoint-12000/model.safetensors",
+    "mean_em": 0.408,
+    "mean_f1": 0.6139915347123298,
+    "mean_bleu": 0.5340002350673745,
+    "num_samples": 500
+}

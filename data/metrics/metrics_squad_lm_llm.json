@@ -1,0 +1,10 @@
+{
+    "task": "lm",
+    "model_type": "llm",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "",
+    "mean_em": 0.538,
+    "mean_f1": 0.7510199422714754,
+    "mean_bleu": 0.67119855225327,
+    "num_samples": 500
+}

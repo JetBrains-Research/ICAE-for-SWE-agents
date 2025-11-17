@@ -27,6 +27,12 @@ def run_autoencoding(model: ICAE, df, device):
 
         # 1. Prepare ICAE example
         input_tokens = model.tokenizer(input_text, truncation=False, padding=False)["input_ids"]
+        
+        # Pad input tokens if shorter than mem_size
+        #if len(input_tokens) < model.mem_size:
+        #    pad_length = (model.mem_size + 5) - len(input_tokens)
+        #    input_tokens = input_tokens + [model.eos_id] * pad_length
+
         example = create_icae_example(
             input_tokens=input_tokens,
             lm_target_tokens=[],
@@ -43,10 +49,13 @@ def run_autoencoding(model: ICAE, df, device):
         prompt_ids = torch.LongTensor(prompt_answer_ids[:prompt_len]).unsqueeze(0).to(device)
         answer_ids = torch.LongTensor(prompt_answer_ids[prompt_len:]).unsqueeze(0).to(device)
         
-        # 3. Autoregressive generation (compression performed internally)
+        # 3. Check if prompt contains memory placeholders
+        has_memory_placeholders = ((prompt_ids >= model.vocab_size) & (prompt_ids < model.vocab_size + model.mem_size)).any().item()
+        
+        # 4. Autoregressive generation (compression performed internally if needed)
         max_gen_len = answer_ids.shape[1]
         generated_token_ids = model.generate_autoregressive(
-            input_ids_tensor,
+            input_ids_tensor if has_memory_placeholders else None,
             prompt_ids,
             max_new_tokens=max_gen_len,
         )
@@ -65,7 +74,7 @@ def run_autoencoding(model: ICAE, df, device):
 
 @torch.no_grad()
 def run_qa(model, df, device, data_args, model_type="icae"):
-    em_scores, f1_scores = [], []
+    em_scores, f1_scores, bleu_scores = [], [], []
     predictions = []
 
     for _, row in tqdm(df.iterrows(), total=len(df), desc="QA Inference"):
@@ -90,9 +99,11 @@ def run_qa(model, df, device, data_args, model_type="icae"):
             input_ids_tensor = example["input_ids"].unsqueeze(0).to(device)
             prompt_ids = example["prompt_answer_ids"].unsqueeze(0).to(device)
 
-            # 3. Autoregressive generation from the prompt (compression inside the model)
+            has_memory_placeholders = ((prompt_ids >= model.vocab_size) & (prompt_ids < model.vocab_size + model.mem_size)).any().item()
+
+            # 3. Autoregressive generation from the prompt (compression inside the model if needed)
             generate_tokens = model.generate_autoregressive(
-                input_ids_tensor,
+                input_ids_tensor if has_memory_placeholders else None,
                 prompt_ids,
                 max_new_tokens=data_args.max_out_length,
             )
@@ -138,8 +149,28 @@ def run_qa(model, df, device, data_args, model_type="icae"):
         # 4. Metrics
         em = compute_exact_match(generated_text, answer)
         f1 = compute_f1(generated_text, answer)
+        reference_token_ids = model.tokenizer(
+            answer.lower(),
+            truncation=False,
+            padding=False,
+            add_special_tokens=False,
+        )["input_ids"]
+        hypothesis_token_ids = model.tokenizer(
+            generated_text.lower(),
+            truncation=False,
+            padding=False,
+            add_special_tokens=False,
+        )["input_ids"]
+
+        bleu = compute_bleu(
+            tokenizer=model.tokenizer,
+            reference_ids=torch.LongTensor(reference_token_ids),
+            hypothesis_ids=torch.LongTensor(hypothesis_token_ids),
+        )
+
         em_scores.append(em)
         f1_scores.append(f1)
+        bleu_scores.append(bleu)
         
         # Store prediction details
         predictions.append({
@@ -147,10 +178,11 @@ def run_qa(model, df, device, data_args, model_type="icae"):
             "predicted_answer": generated_text,
             "ground_truth": answer,
             "exact_match": em,
-            "f1_score": f1
+            "f1_score": f1,
+            "bleu_score": bleu,
         })
 
-    return em_scores, f1_scores, predictions
+    return em_scores, f1_scores, bleu_scores, predictions
 
 
 # -----------------------------------------------------------------------------
@@ -201,15 +233,17 @@ def main():
         }
     else:
         df = load_and_process_squad(num_samples=inference_args.num_samples, include_answers=True)
-        em_scores, f1_scores, predictions = run_qa(model, df, device, data_args, model_type=model_args.model_type)
+        em_scores, f1_scores, bleu_scores, predictions = run_qa(model, df, device, data_args, model_type=model_args.model_type)
 
         mean_em = float(np.mean(em_scores)) if em_scores else 0.0
         mean_f1 = float(np.mean(f1_scores)) if f1_scores else 0.0
+        mean_bleu = float(np.mean(bleu_scores)) if bleu_scores else 0.0
 
         print("\n--- QA Results ---")
         print(
             f"Mean EM: {mean_em:.4f} ({mean_em*100:.2f}%) | "
             f"Mean F1: {mean_f1:.4f} ({mean_f1*100:.2f}%) | "
+            f"Mean BLEU-1: {mean_bleu:.4f} | "
             f"Samples: {len(em_scores)}"
         )
 
@@ -220,6 +254,7 @@ def main():
             "restore_from": inference_args.restore_from,
             "mean_em": mean_em,
             "mean_f1": mean_f1,
+            "mean_bleu": mean_bleu,
             "num_samples": inference_args.num_samples
         }
         
@@ -231,7 +266,7 @@ def main():
         print(f"\nSaved predictions to: {predictions_filename}")
     
     output_filename = (
-        f"icae/data/metrics/metrics_{metrics_summary['task']}_{metrics_summary['model_type']}.json"
+        f"icae/data/metrics/metrics_squad_{metrics_summary['task']}_{metrics_summary['model_type']}.json"
     )
     with open(output_filename, "a") as f:
         json.dump(metrics_summary, f, indent=4)

@@ -1,0 +1,199 @@
+{
+    "task": "repoqa",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/gelvan/icae/data/checkpoints/finetune/repoqa-icae-0411-lr4/checkpoint-500/model.safetensors",
+    "mean_bleu": 0.691465174996425,
+    "mean_similarity": 0.4855443436540446,
+    "pass_at_threshold_0.8": 0.27,
+    "num_samples": 100
+}{
+    "task": "repoqa",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/gelvan/icae/data/checkpoints/finetune/repoqa-icae-0411-lr4/checkpoint-1000/model.safetensors",
+    "mean_bleu": 0.766457099418667,
+    "mean_similarity": 0.5864663742463062,
+    "pass_at_threshold_0.8": 0.33,
+    "num_samples": 100
+}{
+    "task": "repoqa",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/gelvan/icae/data/checkpoints/finetune/repoqa-icae-0411-lr4/checkpoint-1500/model.safetensors",
+    "mean_bleu": 0.8011422446338368,
+    "mean_similarity": 0.6383085600166317,
+    "pass_at_threshold_0.8": 0.43,
+    "num_samples": 100
+}{
+    "task": "repoqa",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/gelvan/icae/data/checkpoints/finetune/repoqa-icae-0411-lr4/checkpoint-2000/model.safetensors",
+    "mean_bleu": 0.8046453559043958,
+    "mean_similarity": 0.6497825020104412,
+    "pass_at_threshold_0.8": 0.47,
+    "num_samples": 100
+}{
+    "task": "repoqa",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/gelvan/icae/data/checkpoints/finetune/repoqa-icae-0411-lr8/checkpoint-4000/model.safetensors",
+    "mean_bleu": 0.8494940408354594,
+    "mean_similarity": 0.7930080865817029,
+    "pass_at_threshold_0.8": 0.64,
+    "num_samples": 100
+}{
+    "task": "repoqa",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/gelvan/icae/data/checkpoints/finetune/repoqa-icae-0411-lr1e-4/checkpoint-4000/model.safetensors",
+    "mean_bleu": 0.8679850585855071,
+    "mean_similarity": 0.8009604543572654,
+    "pass_at_threshold_0.8": 0.69,
+    "num_samples": 100
+}{
+    "task": "repoqa",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/gelvan/icae/data/checkpoints/finetune/repoqa-icae-0411-lr1e-4/checkpoint-5000/model.safetensors",
+    "mean_bleu": 0.8569247451115879,
+    "mean_similarity": 0.8019784985781497,
+    "pass_at_threshold_0.8": 0.68,
+    "num_samples": 100
+}{
+    "task": "repoqa",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/gelvan/icae/data/checkpoints/finetune/repoqa-icae-0411-lr8/checkpoint-5000/model.safetensors",
+    "mean_bleu": 0.8658963636300654,
+    "mean_similarity": 0.8015150411197558,
+    "pass_at_threshold_0.8": 0.66,
+    "num_samples": 100
+}{
+    "task": "repoqa",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/gelvan/icae/data/checkpoints/finetune/repoqa-icae-0411-lr8/checkpoint-3000/model.safetensors",
+    "mean_bleu": 0.8333498086098423,
+    "mean_similarity": 0.7681082936512516,
+    "pass_at_threshold_0.8": 0.65,
+    "num_samples": 100
+}{
+    "task": "repoqa",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/gelvan/icae/data/checkpoints/finetune/repoqa-icae-0411-lr1e-4/checkpoint-3000/model.safetensors",
+    "mean_bleu": 0.8558093541149231,
+    "mean_similarity": 0.7812992909525867,
+    "pass_at_threshold_0.8": 0.66,
+    "num_samples": 100
+}{
+    "task": "repoqa",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/gelvan/icae/data/checkpoints/finetune/repoqa-icae-0411-lr1e-4/checkpoint-3000/model.safetensors",
+    "mean_bleu": 0.8558093541149231,
+    "mean_similarity": 0.7812992909525867,
+    "pass_at_threshold_0.8": 0.66,
+    "num_samples": 100,
+    "total_time_seconds": 452.2464072704315,
+    "mean_time_per_sample_seconds": 4.521856508255005,
+    "median_time_per_sample_seconds": 3.666134238243103,
+    "throughput_samples_per_second": 0.22111839561879065
+}{
+    "task": "repoqa",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/gelvan/icae/data/checkpoints/pretrain/pretrain_2607_1024_4_1B/checkpoint-12000/model.safetensors",
+    "mean_bleu": 0.12715813689381436,
+    "mean_similarity": 0.02667673193462813,
+    "pass_at_threshold_0.8": 0.01,
+    "num_samples": 100,
+    "total_time_seconds": 766.6874656677246,
+    "mean_time_per_sample_seconds": 7.666198251247406,
+    "median_time_per_sample_seconds": 8.193548202514648,
+    "throughput_samples_per_second": 0.1304312441222811
+}
+// this is 1024 tokens
+{
+    "task": "repoqa",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/gelvan/icae/data/checkpoints/pretrain/pretrain_2607_1024_4_1B/checkpoint-12000/model.safetensors",
+    "mean_bleu": 0.5035791604129037,
+    "mean_similarity": 0.3464675413511456,
+    "pass_at_threshold_0.8": 0.15,
+    "num_samples": 100,
+    "total_time_seconds": 373.35360407829285,
+    "mean_time_per_sample_seconds": 6.221946914990743,
+    "median_time_per_sample_seconds": 8.200301051139832,
+    "throughput_samples_per_second": 0.16070555994262722
+}{
+    "task": "repoqa",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/gelvan/icae/data/checkpoints/finetune/repoqa-icae-0411-lr1e-4/checkpoint-4000/model.safetensors",
+    "mean_bleu": 0.8787037647771172,
+    "mean_similarity": 0.7693329253333954,
+    "pass_at_threshold_0.8": 0.5833333333333334,
+    "num_samples": 100,
+    "total_time_seconds": 238.32579684257507,
+    "mean_time_per_sample_seconds": 3.9715171734491985,
+    "median_time_per_sample_seconds": 2.865170121192932,
+    "throughput_samples_per_second": 0.25175621269246273
+}
+// now it is still 1024 tokens, but generation is longer (512 tokens)
+{
+    "task": "repoqa",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/gelvan/icae/data/checkpoints/finetune/repoqa-icae-0411-lr1e-4/checkpoint-4000/model.safetensors",
+    "mean_bleu": 0.8948414105889452,
+    "mean_similarity": 0.7853493348842827,
+    "pass_at_threshold_0.8": 0.65,
+    "num_samples": 100,
+    "total_time_seconds": 303.1403706073761,
+    "mean_time_per_sample_seconds": 5.051713279883066,
+    "median_time_per_sample_seconds": 3.014555811882019,
+    "throughput_samples_per_second": 0.19792810795798393
+}{
+    "task": "repoqa",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/gelvan/icae/data/checkpoints/pretrain/pretrain_2607_1024_4_1B/checkpoint-12000/model.safetensors",
+    "mean_bleu": 0.4941989556883117,
+    "mean_similarity": 0.35080338467494004,
+    "pass_at_threshold_0.8": 0.15,
+    "num_samples": 100,
+    "total_time_seconds": 595.443597316742,
+    "mean_time_per_sample_seconds": 9.92343514362971,
+    "median_time_per_sample_seconds": 8.810420632362366,
+    "throughput_samples_per_second": 0.10076521146650844
+}{
+    "task": "repoqa",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/gelvan/icae/data/checkpoints/pretrain/pretrain_1207/checkpoint-12000/model.safetensors",
+    "mean_bleu": 0.4578397295066514,
+    "mean_similarity": 0.25131617668033657,
+    "pass_at_threshold_0.8": 0.08333333333333333,
+    "num_samples": 500,
+    "total_time_seconds": 348.8038167953491,
+    "mean_time_per_sample_seconds": 5.812848893801371,
+    "median_time_per_sample_seconds": 6.1959322690963745,
+    "throughput_samples_per_second": 0.17201646630834697
+}{
+    "task": "repoqa",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/gelvan/icae/data/checkpoints/pretrain/pretrain_2607_1024_4_1B/checkpoint-12000/model.safetensors",
+    "mean_bleu": 0.5045074702696956,
+    "mean_similarity": 0.34731712869585624,
+    "pass_at_threshold_0.8": 0.15,
+    "num_samples": 100,
+    "total_time_seconds": 378.9298892021179,
+    "mean_time_per_sample_seconds": 6.314905671278636,
+    "median_time_per_sample_seconds": 8.338854432106018,
+    "throughput_samples_per_second": 0.1583406369086829
+}

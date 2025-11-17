@@ -1,14 +1,14 @@
 ### Model Arguments
 model_name_or_path: "Qwen/Qwen3-8B" # "mistralai/Mistral-7B-Instruct-v0.2" OR "Qwen/Qwen3-8B"
-model_type: "icae" # "icae" # "llm"
+model_type: "llm" # "icae" # "llm"
 lora_r: 128 # 512 OR 128
 lora_dropout: 0.05
 train: True # Needed for ICAE decoder
 lora_target_modules: ["q_proj", "v_proj"]
-use_position_identifiers: True
-do_compress: True # this is for inference in reality
-freeze_encoder: True
-freeze_decoder: True
+use_position_identifiers: False
+do_compress: False # this is for inference in reality
+freeze_encoder: False
+freeze_decoder: False
 
 
 ### Data Arguments
@@ -26,25 +26,25 @@ eval_size: 500
 
 
 ### Training Arguments -- This depends on the pretraining or finetuning
-output_dir: ""
+output_dir: "icae/data/checkpoints/finetune/repoqa-simplellm-0411-lr4"
 overwrite_output_dir: False
 per_device_train_batch_size: 1
 per_device_eval_batch_size: 1
 gradient_accumulation_steps: 1
-learning_rate: 0.00005  #0.00005 is 5e-5 while 0.0001 is 1e-4
+learning_rate: 0.00004  #0.00005 is 5e-5 while 0.0001 is 1e-4
 max_grad_norm: 2.0
-warmup_steps: 300
+warmup_steps: 100
 max_steps: -1
-num_train_epochs: 1 # 100
-num_training_steps: 150000
-logging_steps: 1000
+num_train_epochs: 3 # 100
+num_training_steps: 3000
+logging_steps: 10
 train: True
 do_train: True
 do_eval: True
 eval_strategy: "steps"
-eval_steps: 1000
-eval_ae_num_samples: 10
-save_steps: 5000
+eval_steps: 100
+eval_ae_num_samples: 100
+save_steps: 500
 bf16: True
 fp16: False
 optim: "adamw_torch"
@@ -55,17 +55,17 @@ min_tokens_for_lm: 64
 leave_tokens_for_lm: 0
 lm_ratio: 0.0
 add_special_token_for_lm: False
-restore_from: "/mnt/shared-fs/gelvan/icae/data/checkpoints/finetune/repoqa-icae-0411-lr1e-4/checkpoint-3000/model.safetensors"
+restore_from: "" #"icae/data/checkpoints/pretrain/pretrain_2607_1024_4_1B/checkpoint-12000/model.safetensors"
 dataloader_num_workers: 0
 dataloader_pin_memory: False
 dataloader_drop_last: True
 seed: 42
-gradient_checkpointing: False
+gradient_checkpointing: True
 
 
 ### Inference Arguments
 task: "lm" # "ae" or "lm"
-restore_from: "/mnt/shared-fs/gelvan/icae/data/checkpoints/finetune/repoqa-icae-0411-lr1e-4/checkpoint-3000/model.safetensors"
+restore_from: "" #"icae/data/checkpoints/pretrain/pretrain_2607_1024_4_1B/checkpoint-12000/model.safetensors"
 num_samples: 100
 use_cpu: False
 use_position_identifiers: True

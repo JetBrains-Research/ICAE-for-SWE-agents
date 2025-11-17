@@ -1,0 +1,69 @@
+{
+    "task": "trajectories",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/gelvan/icae/data/checkpoints/finetune/swebench-full-256-0808/checkpoint-81673/model.safetensors",
+    "dataset_path": "icae/trajectories/openai/swe-smith/smith_val_openai.jsonl",
+    "per_turn": {
+        "mean_bleu": 0.8871536196520455,
+        "mean_accuracy": 0.9124097276123778,
+        "mean_exact_match": 0.12340105342362678,
+        "mean_bleu_autoregressive": 0.5145424631566993,
+        "mean_accuracy_autoregressive": 0.10299598473154775,
+        "mean_exact_match_autoregressive": 0.12340105342362678,
+        "num_turns": 1329
+    },
+    "per_trajectory": {
+        "mean_bleu": 0.8848550074950413,
+        "mean_accuracy": 0.9088786570661294,
+        "mean_exact_match": 0.10914884438407484,
+        "mean_bleu_autoregressive": 0.5107284401426038,
+        "mean_accuracy_autoregressive": 0.11019130207618387,
+        "mean_exact_match_autoregressive": 0.1113993983912381,
+        "mean_compression_time_s": 0.18576544710244655,
+        "mean_forward_pass_time_s": 0.36188087140029873,
+        "mean_compression_rate": 1.6528322521745942
+    },
+    "overall": {
+        "num_trajectories": 49,
+        "num_turns": 1268,
+        "total_original_tokens": 1044354,
+        "total_compressed_tokens": 547071,
+        "overall_compression_ratio": 1.9089917030878991,
+        "tokens_saved": 497283
+    }
+}{
+    "task": "trajectories",
+    "model_type": "icae",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/gelvan/icae/data/checkpoints/pretrain/pretrain_2607_1024_4_1B/checkpoint-12000/model.safetensors",
+    "dataset_path": "icae/trajectories/openai/swe-smith/smith_val_openai.jsonl",
+    "per_turn": {
+        "mean_bleu": 0.8586157201221457,
+        "mean_accuracy": 0.8905240849307694,
+        "mean_exact_match": 0.10233258088788563,
+        "mean_bleu_autoregressive": 0.3514151250547074,
+        "mean_accuracy_autoregressive": 0.0497790030629797,
+        "mean_exact_match_autoregressive": 0.0963130173062453,
+        "num_turns": 1329
+    },
+    "per_trajectory": {
+        "mean_bleu": 0.8517674962145649,
+        "mean_accuracy": 0.8833383746864271,
+        "mean_exact_match": 0.08233343248434347,
+        "mean_bleu_autoregressive": 0.335109788743698,
+        "mean_accuracy_autoregressive": 0.03749422973945525,
+        "mean_exact_match_autoregressive": 0.073822646340082,
+        "mean_compression_time_s": 0.1880091441710926,
+        "mean_forward_pass_time_s": 0.35690569398229366,
+        "mean_compression_rate": 1.6528322521745942
+    },
+    "overall": {
+        "num_trajectories": 49,
+        "num_turns": 1268,
+        "total_original_tokens": 1044354,
+        "total_compressed_tokens": 547071,
+        "overall_compression_ratio": 1.9089917030878991,
+        "tokens_saved": 497283
+    }
+}

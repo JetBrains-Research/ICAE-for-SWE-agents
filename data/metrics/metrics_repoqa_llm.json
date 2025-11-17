@@ -1,0 +1,106 @@
+{
+    "task": "repoqa",
+    "model_type": "llm",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "",
+    "mean_bleu": 0.7675757173508759,
+    "mean_similarity": 0.7176536065620283,
+    "pass_at_threshold_0.8": 0.63,
+    "num_samples": 100
+}{
+    "task": "repoqa",
+    "model_type": "llm",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "",
+    "mean_bleu": 0.808980709548539,
+    "mean_similarity": 0.7630151763794031,
+    "pass_at_threshold_0.8": 0.65,
+    "num_samples": 100
+}{
+    "task": "repoqa",
+    "model_type": "llm",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/gelvan/icae/data/checkpoints/finetune/repoqa-simplellm-0411-lr4/checkpoint-1000/model.safetensors",
+    "mean_bleu": 0.9037100078019393,
+    "mean_similarity": 0.8977118150141332,
+    "pass_at_threshold_0.8": 0.85,
+    "num_samples": 100
+}{
+    "task": "repoqa",
+    "model_type": "llm",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/gelvan/icae/data/checkpoints/finetune/repoqa-simplellm-0411-lr4/checkpoint-3000/model.safetensors",
+    "mean_bleu": 0.9023753834239995,
+    "mean_similarity": 0.900669432523233,
+    "pass_at_threshold_0.8": 0.85,
+    "num_samples": 100
+}{
+    "task": "repoqa",
+    "model_type": "llm",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/gelvan/icae/data/checkpoints/finetune/repoqa-simplellm-0411-lr4/checkpoint-3000/model.safetensors",
+    "mean_bleu": 0.9026663409812588,
+    "mean_similarity": 0.9015954304711004,
+    "pass_at_threshold_0.8": 0.85,
+    "num_samples": 100,
+    "total_time_seconds": 477.04794931411743,
+    "mean_time_per_sample_seconds": 4.769946031570434,
+    "median_time_per_sample_seconds": 3.6854302883148193,
+    "throughput_samples_per_second": 0.209622534052974
+}
+// now it is 1024 tokens
+{
+    "task": "repoqa",
+    "model_type": "llm",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "",
+    "mean_bleu": 0.8066209239087084,
+    "mean_similarity": 0.7643105866698378,
+    "pass_at_threshold_0.8": 0.6166666666666667,
+    "num_samples": 100,
+    "total_time_seconds": 323.3207516670227,
+    "mean_time_per_sample_seconds": 5.388091905911764,
+    "median_time_per_sample_seconds": 4.421417713165283,
+    "throughput_samples_per_second": 0.1855742314424408
+}{
+    "task": "repoqa",
+    "model_type": "llm",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/gelvan/icae/data/checkpoints/finetune/repoqa-simplellm-0411-lr4/checkpoint-3000/model.safetensors",
+    "mean_bleu": 0.9371764972915483,
+    "mean_similarity": 0.9274094253216572,
+    "pass_at_threshold_0.8": 0.8666666666666667,
+    "num_samples": 100,
+    "total_time_seconds": 271.6787860393524,
+    "mean_time_per_sample_seconds": 4.527374649047852,
+    "median_time_per_sample_seconds": 3.46723473072052,
+    "throughput_samples_per_second": 0.2208490433673723
+}
+// now it is still 1024 tokens, but generation is longer (512 tokens)
+{
+    "task": "repoqa",
+    "model_type": "llm",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "/mnt/shared-fs/gelvan/icae/data/checkpoints/finetune/repoqa-simplellm-0411-lr4/checkpoint-3000/model.safetensors",
+    "mean_bleu": 0.9733017787992224,
+    "mean_similarity": 0.961792416630635,
+    "pass_at_threshold_0.8": 0.9333333333333333,
+    "num_samples": 100,
+    "total_time_seconds": 320.922256231308,
+    "mean_time_per_sample_seconds": 5.348056276639302,
+    "median_time_per_sample_seconds": 3.6109485626220703,
+    "throughput_samples_per_second": 0.18696116842938557
+}{
+    "task": "repoqa",
+    "model_type": "llm",
+    "model_name_or_path": "Qwen/Qwen3-8B",
+    "restore_from": "",
+    "mean_bleu": 0.8306007446085621,
+    "mean_similarity": 0.7931808473619302,
+    "pass_at_threshold_0.8": 0.6666666666666666,
+    "num_samples": 100,
+    "total_time_seconds": 365.68236804008484,
+    "mean_time_per_sample_seconds": 6.094098464647929,
+    "median_time_per_sample_seconds": 4.099469184875488,
+    "throughput_samples_per_second": 0.1640768197864629
+}

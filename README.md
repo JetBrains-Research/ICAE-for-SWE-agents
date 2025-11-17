@@ -62,7 +62,7 @@ CUDA_VISIBLE_DEVICES=X python -m icae.scripts.finetune_SQuAD --config_path icae/
 
 To run inference with a fine-tuned model on the SQuAD dataset, use the command below. This script can perform two tasks: `ae` (autoencoding) and `qa` (question answering), which can be specified in the config file.
 ```bash
-CUDA_VISIBLE_DEVICES=X python -m icae.scripts.inference_SQuAD --config_path icae/configs/finetune_config.yaml
+CUDA_VISIBLE_DEVICES=X python -m icae.scripts.inference_SQuAD --config_path icae/configs/inference_config.yaml
 ```
 
 ## Notes

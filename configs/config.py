@@ -55,6 +55,7 @@ class InferenceArguments:
     num_samples: int = field(default=None)
     use_cpu: bool = field(default=None)
     use_position_identifiers: bool = field(default=None)
+    teacher_forcing: bool = field(default=True)
 
 def get_config():
     """Parses command-line arguments for the config path and loads the config."""
