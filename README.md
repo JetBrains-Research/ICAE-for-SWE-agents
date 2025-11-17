@@ -8,7 +8,7 @@ The original ICAE idea is presented in a paper [here](https://arxiv.org/abs/2307
 
 *   **Models**: Supports both `ICAE` and standard `SimpleLLM` architectures.
 *   **Base Models**: Compatible with `Qwen` and `Mistral` series of models.
-*   **Tasks**: Scripts for pre-training, fine-tuning on SQuAD, and inference.
+*   **Tasks**: Pre-training, fine-tuning, and inference on SQuAD, RepoQA, and trajectory datasets.
 *   **Frameworks**: Built on top of Hugging Face's `transformers`, `datasets`, and `accelerate`.
 *   **Experiment Tracking**: Integrated with Weights & Biases (`wandb`) for easy monitoring of experiments.
 
@@ -31,40 +31,69 @@ The original ICAE idea is presented in a paper [here](https://arxiv.org/abs/2307
     ```
 
 2.  **Install dependencies:**
-    The `requirements.txt` file is automatically configured by wandb.
     ```bash
     pip install -r requirements.txt
     ```
 
 ## Usage
 
-All scripts are configured using YAML files located in the `configs/` directory. The main configuration files are `pretrain_config.yaml` and `finetune_config.yaml`.
+All scripts are configured using YAML files located in the `configs/` directory. Each script requires a `--config_path` argument.
 
 ### Pre-training
 
-To prepare the data see, run the following command:
+**1. Prepare pre-training data:**
 ```bash
 CUDA_VISIBLE_DEVICES=X python -m icae.data.prepare_data_for_pretraining --config_path icae/configs/pretrain_config.yaml
 ```
-To pre-train a model, run the following command:
+
+**2. Run pre-training:**
 ```bash
 CUDA_VISIBLE_DEVICES=X python -m icae.scripts.pretrain --config_path icae/configs/pretrain_config.yaml
 ```
 
 ### Fine-tuning
 
-To fine-tune a model on the SQuAD dataset, use the following command:
+Fine-tune models on the SQuAD dataset:
 ```bash
-CUDA_VISIBLE_DEVICES=X python -m icae.scripts.finetune_SQuAD --config_path icae/configs/finetune_config.yaml
+CUDA_VISIBLE_DEVICES=X python -m icae.scripts.finetune_SQuAD --config_path icae/configs/finetune_config_icae.yaml
 ```
 
 ### Inference
 
-To run inference with a fine-tuned model on the SQuAD dataset, use the command below. This script can perform two tasks: `ae` (autoencoding) and `qa` (question answering), which can be specified in the config file.
+Evaluate models on SQuAD with two task types:
+- `ae` (autoencoding): Reconstruct input text
+- `qa` (question answering): Answer questions based on context
+
 ```bash
 CUDA_VISIBLE_DEVICES=X python -m icae.scripts.inference_SQuAD --config_path icae/configs/inference_config.yaml
 ```
 
+Set `task: "ae"` or `task: "qa"` in the config file to specify the task type.
+
+## Configuration
+
+Key configuration parameters:
+- `model_type`: `"icae"` or `"llm"`
+- `do_compress`: Enable compression for ICAE (set to `True` for inference)
+- `fixed_mem_size`: Size of memory tokens (must be a power of 2)
+- `mean_compression_rate`: Expected compression ratio
+- `use_position_identifiers`: Use positional identifiers for compression
+- `task`: Inference task type (`"ae"`, `"qa"`, `"repoqa"`, or `"trajectories"`)
+
+## Metrics
+
+The inference scripts automatically compute and save metrics:
+
+- **SQuAD**: BLEU-1, Exact Match (EM), F1 score
+- **RepoQA**: BLEU-1, RepoQA similarity score, Pass@0.8 threshold
+- **Trajectories**: BLEU-1, token-level accuracy, exact match (per turn and per trajectory), compression rates, timing statistics
+
+Metrics are saved to `icae/data/metrics/` and predictions to `icae/data/predictions/`.
+
 ## Notes
 
-*   Currently, only a batch size of 1 (`bs=1`) is supported.
+*   Currently, only a batch size of 1 (`per_device_train_batch_size=1`) is supported.
+*   RepoQA fine-tuning and inference currently only support Qwen models.
+*   Trajectory fine-tuning uses a custom trainer that processes trajectories turn-by-turn with accumulated compressed memory.
+*   All scripts support both ICAE and SimpleLLM models for comparison.
+*   Checkpoints are saved in safetensors format and can be loaded for inference or continued training.
