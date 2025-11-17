@@ -155,8 +155,6 @@ class ICAETrajectoryTrainer(ICAETrainer):
                     total_tokens_trained += num_trained_tokens
                     trajectory_losses.append(loss.item())
 
-                    # print(template_mgr._safe_decode_with_mem_tokens(prompt_answer.squeeze(0).tolist()))
-
                     # ------------------------
                     # Compute BLEU and Accuracy metrics from forward logits
                     # ------------------------
@@ -169,8 +167,6 @@ class ICAETrajectoryTrainer(ICAETrainer):
                         valid_positions = answer_positions[answer_positions > 0]    # skip the first answer token
                         ref_ids = lbl_ids[valid_positions]
                         hyp_ids = pred_ids[valid_positions - 1]
-                        #print("Reference:", self.model.tokenizer.decode(ref_ids, skip_special_tokens=True))
-                        #print("Hypothesis:", self.model.tokenizer.decode(hyp_ids, skip_special_tokens=True))
                         bleu_score = compute_bleu(self.model.tokenizer, ref_ids, hyp_ids)
                         accuracy_score = compute_accuracy(ref_ids, hyp_ids)
 
@@ -235,13 +231,6 @@ class ICAETrajectoryTrainer(ICAETrainer):
                     self.state.global_step = global_step
                     self._save_checkpoint(model=self.model, trial=trial)
                     print(f"Checkpoint saved at {args.output_dir}_checkpoint_{global_step}.safetensors")
-
-                ### maybe also do eval here?
-
-            ### TODO: do we need this?
-            # optional epoch-level evaluation / checkpoint save
-            #if args.evaluation_strategy == IntervalStrategy.EPOCH:
-            #    self.evaluate()
 
         self.is_in_train = False
         return global_step

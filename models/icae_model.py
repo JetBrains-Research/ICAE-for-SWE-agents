@@ -81,9 +81,6 @@ class ICAE(nn.Module):
         # Resize token embeddings to accommodate new special tokens
         self.icae.resize_token_embeddings(self.vocab_size_with_mem + 3)
 
-        # Required by HF Trainer when loading checkpoints
-        # self._keys_to_ignore_on_save = None
-
         # Tokenizer-specific constants
         self.eos_id = self.tokenizer.eos_token_id
 
@@ -122,7 +119,6 @@ class ICAE(nn.Module):
         print_trainable_parameters(self)
 
         
-        ### TODO: if restore is a directory, load the DECODER from it only!
         if self.restore and Path(self.restore).is_dir():
             # folder with e.g. model-00001-of-0000x.safetensors + model.safetensors.index.json
             load_sharded_checkpoint(self.decoder, self.restore, strict=True, prefer_safe=True)
@@ -201,7 +197,6 @@ class ICAE(nn.Module):
                 )
                 encode_position_ids = torch.cat([position_ids, mem_position_ids], dim=1)
 
-                ### TODO: check if this is correct instead of just using self.icae(..., output_hidden_states=True)
                 segment_compressed_memory = self.icae.get_base_model().model(
                     inputs_embeds=segment_input_embedding,
                     position_ids=encode_position_ids,
@@ -218,7 +213,6 @@ class ICAE(nn.Module):
                 segment_idx * self.mem_size : self.mem_size * (segment_idx + 1)
             ] = segment_compressed_memory[mem_flag].cpu()
 
-            ### TODO: throughtly check this! i believe that with this commented out we spend more memory, but it's faster
             del segment_input_ids, segment_input_embedding, segment_compressed_memory
             torch.cuda.empty_cache()
 
@@ -337,7 +331,7 @@ class ICAE(nn.Module):
             "trained_tokens": trained_tokens,
         }
     
-    @torch.no_grad() # TODO: maybe check? seems fine to me
+    @torch.no_grad()
     def generate_autoregressive(
         self,
         input_ids: torch.LongTensor,

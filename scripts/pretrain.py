@@ -55,9 +55,6 @@ def main():
     print("Pre-tokenized dataset check:")
     print(train_dataset[0])
 
-    #data_collator = DataCollatorForDynamicPadding(
-    #    pad_token_id=model.tokenizer.pad_token_id
-    #)
     data_collator = None
 
     print("Starting training...")

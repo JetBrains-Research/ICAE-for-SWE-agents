@@ -50,7 +50,6 @@ def _run(model, trajs, device):
         total_original_tokens = 0
         total_compressed_tokens = 0
         msgs = traj.get("messages", traj.get("message_sequence", []))
-        # cache = DynamicCache()
         messages_history = []
         accumulated_compressed_memory = None
 
@@ -66,7 +65,6 @@ def _run(model, trajs, device):
                 messages_history.append({"role": "user", "content": content})
             elif role == "assistant":
                 messages_history.append({"role": "assistant", "content": content})
-                ### TODO: for the future just do pure generation here without ICAE
 
         # Convert initial history to token IDs
         conversation_tokens = model.tokenizer.apply_chat_template(
@@ -156,8 +154,6 @@ def _run(model, trajs, device):
             prompt_answer_ids_tensor = torch.LongTensor(prompt_answer_ids).unsqueeze(0).to(device)
             labels_tensor_unsqueezed = torch.LongTensor(labels_tensor).unsqueeze(0).to(device)
 
-            # print(f'prompt_answer_ids_tensor: {tm._safe_decode_with_mem_tokens(prompt_answer_ids_tensor[0])}')
-
             start_time = time.time()
             out = model(
                 input_ids=None,
@@ -165,7 +161,6 @@ def _run(model, trajs, device):
                 labels=labels_tensor_unsqueezed,
                 is_ae=example.get("is_ae", False),
                 compressed_memory=accumulated_compressed_memory,
-                # cache = cache
             )
             forward_pass_duration = time.time() - start_time
             gen_times_traj.append(forward_pass_duration)
@@ -308,9 +303,8 @@ def main():
     dataset_path = getattr(inference_args, "dataset_path", "icae/trajectories/openai/swe-smith/smith_val_openai.jsonl")
     trajectories = load_conversation_trajectories(dataset_path)
     print(f"Loaded {len(trajectories)} trajectories")
-    trajectories = trajectories[259:]  ### TODO: this is last half that is used for testing
+    trajectories = trajectories[259:] ### Last half is used for testing
     print(f"Loaded {len(trajectories)} trajectories")
-    ### TODO: it is here just to be safe
     with torch.inference_mode():
         (
             bleu_scores,

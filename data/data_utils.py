@@ -42,7 +42,6 @@ __all__ = [
 #######################
 # CORE FUNCTIONS
 #######################
-### this is actually only for Qwen
 def create_icae_example(input_tokens, lm_target_tokens, task_type, model, text_tokens=None):
     """
     Creates a single tokenized example for the ICAE model.
@@ -100,34 +99,6 @@ def create_icae_example(input_tokens, lm_target_tokens, task_type, model, text_t
         "labels": torch.LongTensor(labels),
         "is_ae": torch.LongTensor([1 if task_type == "ae" else 0])
     }
-
-    # Print example details
-    '''print("\n=== Example Details ===")
-    print(f"Task type: {task_type}")
-    print(f"Input length: {len(encoder_input_ids)}")
-    print(f"Prompt+Answer length: {len(prompt_answer_ids)}")
-    print(f"Labels length: {len(labels)}")
-    
-    print("\nInput text:")
-    print(template_manager._safe_decode_with_mem_tokens(encoder_input_ids))
-    print("-" * 10 + 'start of prompt+answer text' + '-'*10)
-    print(template_manager._safe_decode_with_mem_tokens(prompt_answer_ids))
-    print('-'*10 + 'end of prompt+answer text' + '-'*10)
-    print("\nLabels:")
-    non_ignore_positions = [i for i, x in enumerate(labels) if x != -100]
-    print(f"{non_ignore_positions[0]}...{non_ignore_positions[-1]} are labels out of {len(labels)-1}")
-    if len(non_ignore_positions) > 1000:
-        print(f"--------------------------------")
-        print("Very long generation! Here are first 100 and last 100 tokens of prompt_answer_ids at non-ignore positions:")
-        first_100 = [prompt_answer_ids[i] for i in non_ignore_positions[:100]]
-        last_100 = [prompt_answer_ids[i] for i in non_ignore_positions[-100:]]
-        print("First 100:", template_manager._safe_decode_with_mem_tokens(first_100))
-        print("Last 100:", template_manager._safe_decode_with_mem_tokens(last_100)) 
-        print(f"--------------------------------")
-    print("=====================\n")
-    print("Sleeping for 10 seconds to see the example...")
-    time.sleep(10)'''
-
 
     return example
 

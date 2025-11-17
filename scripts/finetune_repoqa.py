@@ -74,9 +74,6 @@ def main():
     train_dataset = train_dataset.map(format_repoqa, batched=True, remove_columns=train_dataset.column_names, load_from_cache_file=False)
     eval_dataset = eval_dataset.map(format_repoqa, batched=True, remove_columns=eval_dataset.column_names, load_from_cache_file=False)
 
-    # print('train_dataset[0]: ', train_dataset[0])
-    # print('eval_dataset[0]: ', eval_dataset[0])
-
     # Only support Qwen, not Mistral
     if model_args.model_type == "icae":
         model = ICAE(model_args, training_args)
@@ -93,9 +90,6 @@ def main():
             eval_dataset = eval_dataset.map(tokenize_qwen_llm_ft_repoqa, batched=True, fn_kwargs={"tokenizer": tokenizer, "max_length": training_args.model_max_length}, load_from_cache_file=False)
         else:
             raise ValueError("Only Qwen model is supported for RepoQA, not Mistral")
-
-    # print('train_dataset ready [0]: ', train_dataset[0])
-    # print('eval_dataset ready [0]: ', eval_dataset[0])
 
     train_model(model, train_dataset, eval_dataset, training_args)
 

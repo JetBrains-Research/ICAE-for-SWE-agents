@@ -27,11 +27,6 @@ def run_autoencoding(model: ICAE, df, device):
 
         # 1. Prepare ICAE example
         input_tokens = model.tokenizer(input_text, truncation=False, padding=False)["input_ids"]
-        
-        # Pad input tokens if shorter than mem_size
-        #if len(input_tokens) < model.mem_size:
-        #    pad_length = (model.mem_size + 5) - len(input_tokens)
-        #    input_tokens = input_tokens + [model.eos_id] * pad_length
 
         example = create_icae_example(
             input_tokens=input_tokens,

@@ -175,7 +175,6 @@ def main():
     model = model.to(device)
     model.eval()
 
-    ### Inference
     cache_file_path = "/mnt/shared-fs/gelvan/icae/data/datasets/cache_ntoken_1024_v1.jsonl"
     
     print("Loading RepoQA dataset from cache...")
