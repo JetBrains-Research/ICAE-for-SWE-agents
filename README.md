@@ -1,4 +1,4 @@
-# In-Context AutoEncoder (ICAE)
+# In-Context AutoEncoder (ICAE) for SWE Agents
 [![JetBrains Research](https://jb.gg/badges/research.svg)](https://camo.githubusercontent.com/a370a38a31d10d024bd5757d5bc795f1b5ba5f42416b9c05a16be8c560165cfe/68747470733a2f2f6a622e67672f6261646765732f72657365617263682d706c61737469632e737667)
 
 This repository contains the official implementation for pre-training, fine-tuning, and running inference with the In-Context AutoEncoder (ICAE) model. It also supports standard Large Language Models (LLMs) for comparison. 
