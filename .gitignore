@@ -14,3 +14,10 @@ data/checkpoints/*
 data/datasets/*
 */predictions/*
 trajectories
+bleu_all_datasets.pdf
+.gitignore
+.gitignore
+.gitignore
+decode_test.ipynb
+model_comparison.png
+scripts/compute_answer_length_stats.py
