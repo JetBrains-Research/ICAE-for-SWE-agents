@@ -1,4 +1,5 @@
 # In-Context AutoEncoder (ICAE)
+[![JetBrains Research](https://jb.gg/badges/research.svg)](https://camo.githubusercontent.com/a370a38a31d10d024bd5757d5bc795f1b5ba5f42416b9c05a16be8c560165cfe/68747470733a2f2f6a622e67672f6261646765732f72657365617263682d706c61737469632e737667)
 
 This repository contains the official implementation for pre-training, fine-tuning, and running inference with the In-Context AutoEncoder (ICAE) model. It also supports standard Large Language Models (LLMs) for comparison. 
 
@@ -97,3 +98,32 @@ Metrics are saved to `icae/data/metrics/` and predictions to `icae/data/predicti
 *   Trajectory fine-tuning uses a custom trainer that processes trajectories turn-by-turn with accumulated compressed memory.
 *   All scripts support both ICAE and SimpleLLM models for comparison.
 *   Checkpoints are saved in safetensors format and can be loaded for inference or continued training.
+
+## Citation
+
+If you use this code, please cite:
+
+```bibtex
+@misc{ge_-context_2024,
+  title = {In-context {Autoencoder} for {Context} {Compression} in a {Large} {Language} {Model}},
+  url = {http://arxiv.org/abs/2307.06945},
+  doi = {10.48550/arXiv.2307.06945},
+  publisher = {arXiv},
+  author = {Ge, Tao and Hu, Jing and Wang, Lei and Wang, Xun and Chen, Si-Qing and Wei, Furu},
+  month = may,
+  year = {2024},
+  note = {arXiv:2307.06945 [cs]},
+}
+
+@misc{zhao_position_2025,
+  title = {Position {IDs} {Matter}: {An} {Enhanced} {Position} {Layout} for {Efficient} {Context} {Compression} in {Large} {Language} {Models}},
+  shorttitle = {Position {IDs} {Matter}},
+  url = {http://arxiv.org/abs/2409.14364},
+  doi = {10.48550/arXiv.2409.14364},
+  publisher = {arXiv},
+  author = {Zhao, Runsong and Liu, Xin and Liu, Xinyu and Huang, Pengcheng and Xiao, Chunyang and Xiao, Tong and Zhu, Jingbo},
+  month = sep,
+  year = {2025},
+  note = {arXiv:2409.14364 [cs]},
+}
+```
