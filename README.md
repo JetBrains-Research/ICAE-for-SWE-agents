@@ -5,6 +5,10 @@ This repository contains the official implementation for pre-training, fine-tuni
 
 The original ICAE idea is presented in a paper [here](https://arxiv.org/abs/2307.06945) and the improvements using Positional Identifyiers described [here](https://arxiv.org/abs/2409.14364v3)
 
+Our work is described [here](https://github.com/Kirili4ik/implicit-context-compression-for-local-swe-agents-text/blob/main/build/master.pdf)
+
+Our trained models are [here](https://huggingface.co/Kirili4ik/icae)
+
 ## Features
 
 *   **Models**: Supports both `ICAE` and standard `SimpleLLM` architectures.
