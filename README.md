@@ -108,26 +108,12 @@ Metrics are saved to `icae/data/metrics/` and predictions to `icae/data/predicti
 If you use this code, please cite:
 
 ```bibtex
-@misc{ge_-context_2024,
-  title = {In-context {Autoencoder} for {Context} {Compression} in a {Large} {Language} {Model}},
-  url = {http://arxiv.org/abs/2307.06945},
-  doi = {10.48550/arXiv.2307.06945},
-  publisher = {arXiv},
-  author = {Ge, Tao and Hu, Jing and Wang, Lei and Wang, Xun and Chen, Si-Qing and Wei, Furu},
-  month = may,
-  year = {2024},
-  note = {arXiv:2307.06945 [cs]},
-}
-
-@misc{zhao_position_2025,
-  title = {Position {IDs} {Matter}: {An} {Enhanced} {Position} {Layout} for {Efficient} {Context} {Compression} in {Large} {Language} {Models}},
-  shorttitle = {Position {IDs} {Matter}},
-  url = {http://arxiv.org/abs/2409.14364},
-  doi = {10.48550/arXiv.2409.14364},
-  publisher = {arXiv},
-  author = {Zhao, Runsong and Liu, Xin and Liu, Xinyu and Huang, Pengcheng and Xiao, Chunyang and Xiao, Tong and Zhu, Jingbo},
-  month = sep,
-  year = {2025},
-  note = {arXiv:2409.14364 [cs]},
-}
-```
+@misc{gelvan2026problemsimplicitcontextcompression,
+      title={On Problems of Implicit Context Compression for Software Engineering Agents}, 
+      author={Kirill Gelvan and Igor Slinko and Felix Steinbauer and Egor Bogomolov and Florian Kofler and Yaroslav Zharov},
+      year={2026},
+      eprint={2605.11051},
+      archivePrefix={arXiv},
+      primaryClass={cs.SE},
+      url={https://arxiv.org/abs/2605.11051}, 
+}```
